@@ -15,7 +15,15 @@ def json_inputs(file):
         tmp_dict = {}
         tmp_dict['len'] = random.randint(1, 50)
         tmp_dict['input'] = rand_str(tmp_dict['len'])
-        tmp_dict['more_data'] = ["a", "bb"]
+        
+        # Generate input for 'more_data'
+        data_list = []
+        data_list_len = random.randint(1, 50)
+        for i in range(1, data_list_len):
+            str_input = rand_str(random.randint(1, 50))
+            data_list.append(str_input)
+            
+        tmp_dict['more_data'] = data_list
 
         json.dump(tmp_dict, f)
        
