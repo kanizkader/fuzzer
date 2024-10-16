@@ -1,7 +1,6 @@
 import subprocess
 import os
 import logging
-import stat
 from input_handlers import json_handler, pdf_handler
 
 class Harness:
