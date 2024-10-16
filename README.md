@@ -14,4 +14,4 @@ Note: Please don't add unnecessary dependencies. It's gonna make the build proce
 When you need to add input handlers to the project, you can do so by editing the `input_handlers.py` file. Add a new class to the file with the name of the input handler you need.
 
 ### Adding Binaries
-If you need to add binaries to the project, you can do so by adding them to the `binaries` folder. The fuzzer will automatically pull them into the docker container when you run the fuzzer.
+If you need to add binaries to the project, you can do so by adding them to the `binaries` folder. Please make sure to also add a corresponding example input file to the `example_inputs` folder so that we all code solutions properly. The fuzzer will automatically pull them into the docker container when you run the fuzzer.
