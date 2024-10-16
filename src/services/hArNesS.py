@@ -19,19 +19,6 @@ class Harness:
     @staticmethod
     def send_hArNesS():
         return "hArNesS"
-    
-    @staticmethod
-    def make_executable(file_path):
-        """
-        Ensure the binary has executable permissions.
-        """
-        try:
-            st = os.stat(file_path)
-            os.chmod(file_path, st.st_mode | stat.S_IEXEC)
-            print(f"Made '{file_path}' executable.")
-        except Exception as ex:
-            print(f"Failed to set executable permissions for {file_path}: {ex}")
-            raise
 
     @staticmethod
     def run_binary(binary_path):
@@ -40,7 +27,6 @@ class Harness:
         Provides detailed error information if something goes wrong.
         """
         try:
-            Harness.make_executable(binary_path)
             process = subprocess.run(
                 [binary_path], 
                 capture_output=True, 
