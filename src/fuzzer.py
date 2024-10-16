@@ -7,8 +7,6 @@ def main():
     output_folder = 'fuzzer_output'
     if not os.path.exists(output_folder):
         print(f"Folder '{output_folder}' does not exist.")
-        os.makedirs(output_folder)
-        print(f"Folder '{output_folder}' created.")
         return
     output_file = os.path.join(output_folder, 'test_output2.txt')
     try:
