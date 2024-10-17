@@ -1,7 +1,7 @@
 import subprocess
 import os
 import logging
-from input_handlers import json_handler, pdf_handler
+from input_handlers import JsonHandler, PDFHandler
 
 class Harness:
     """
@@ -61,8 +61,8 @@ class Harness:
             with open(output_file, 'w') as f:
                 print("Writing fuzzer output via Harness")
                 f.write('Test output\n')
-                f.write(json_handler.JsonHandler.send_json() + '\n')
-                f.write(pdf_handler.PdfHandler.send_pdf() + '\n')
+                f.write(JsonHandler.JsonHandler.send_json() + '\n')
+                f.write(PDFHandler.PdfHandler.send_pdf() + '\n')
         except Exception as e:
             logging.error(f"An error occurred while writing to the file: {e}")
             print(f"An error occurred while writing to the file: {e}")
