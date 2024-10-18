@@ -1,11 +1,7 @@
 import subprocess
 import os
 import logging
-<<<<<<< HEAD
-from input_handlers import json_handler, pdf_handler
-=======
 from input_handlers import JsonHandler, PDFHandler
->>>>>>> main
 
 class Harness:
     """
