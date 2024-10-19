@@ -3,8 +3,9 @@ import csv
 class Schema:
     def __init__(self):
         self.num_rows = 0
-        self.num_columns = 0
-        self.header = 0
+        self.num_cols = 0
+        self.has_header = False
+        self.header = []
         self.first_row = []
         self.sep = ','
 
@@ -20,8 +21,12 @@ class CsvHandler:
     def format_row(row):
         """
         Returns single row in csv format
+        or empty string if row is empty
         """
-        return ','.join(cell for cell in row) + '\n'
+        if len(row) == 0:
+            return ''
+        else:
+            return ','.join(cell for cell in row) + '\n'
 
     @staticmethod
     def format_table(table):
@@ -31,34 +36,56 @@ class CsvHandler:
         return ''.join(__class__.format_row(row) for row in table)
 
     @staticmethod
-    def mutate(schema):
+    def bad_row(schema):
+        """
+        Returns mutated row of given file based on known
+        bad inputs. Filepath will need to be changed.
+        """
+        i = 0
 
+        with open('/src/input_handlers/bad-strings.txt', 'r') as bad_strings:
+            for bad_string in bad_strings:
+                if not bad_string.startswith(('#', '\n')): 
+                    bad_row = [cell for cell in schema.first_row]
+                    bad_row[i % schema.num_cols] = bad_string[:-1]
+                    i += 1
+                    yield bad_row
 
     @staticmethod
-    def fuzz(schema, has_header):
+    def mutate(inputs, schema, max_variants):
+        """
+        Expands a given list of inputs with up to max_variants mutations.
+        """
+        bad_row = __class__.bad_row(schema)
+
+        for _ in range(max_variants):
+            var = [schema.header]
+            for _ in range(schema.num_rows):
+                var.append(next(bad_row))
+            v1 = __class__.format_table(var)
+            print(v1, '\n')
+            inputs.append(v1)
+        return inputs
+
+    @staticmethod
+    def fuzz(schema):
         """
         Makes list of fuzzer inputs
         """
-        # Start with valid input
-        inputs = [__class__.format_table(schema)]
-
-        # Add empty string
-        inputs.append('')
+        # Start with empty string
+        inputs = ['']
         # Add empty table
-        empty = __class__.format_row(['' for _ in range(len(schema))])
-        if has_header:
-            inputs.append(__class__.format_row(schema[0]) + empty)
-        else:
-            inputs.append(empty)
+        empty = __class__.format_row(['' for _ in range(schema.num_cols)])
+        inputs.append(__class__.format_row(schema.header) + empty)
 
         # Add many rows
-        inputs.append(__class__.format_row(schema[0]) +
-                      __class__.format_row(['A' for _ in range(len(schema[0]))]) * 1000)
+        inputs.append(__class__.format_row(schema.header) +
+                      __class__.format_row(['A' for _ in range(schema.num_cols)]) * 1000)
         # Many more rows
-        inputs.append(__class__.format_row(schema[0]) +
-                      __class__.format_row(['A' for _ in range(len(schema[0]))]) * 100000)
+        inputs.append(__class__.format_row(schema.header) +
+                      __class__.format_row(['A' for _ in range(schema.num_cols)]) * 100000)
 
-        return inputs
+        return __class__.mutate(inputs, schema, 100)
 
     @staticmethod 
     def parse_input(filepath):
@@ -67,18 +94,25 @@ class CsvHandler:
         Currently returns a list but could be modified depending
         on what format the harness expects.
         """
-        has_header = False
-        schema = []
+        s = Schema()
 
         with open(filepath, 'r') as csvfile:
             if csv.Sniffer().has_header(csvfile.read(1024)):
-                has_header = True
-
-        with open(filepath, 'r') as csvfile:
+               s.has_header = True
+            csvfile.seek(0)
             reader = csv.reader(csvfile, delimiter=',')
-            schema = [__class__.split_cells(row) for row in reader]
+            num_rows = 0
 
-        return __class__.fuzz(schema, has_header)
+            if s.has_header:
+                s.header = __class__.split_cells(next(reader))
+            for row in reader:
+                if num_rows == 0:
+                    s.first_row = __class__.split_cells(row)
+                    s.num_cols = len(s.first_row)
+                num_rows += 1
+            s.num_rows = num_rows
+
+        return __class__.fuzz(s)
 
     @staticmethod
     def send_csv():
