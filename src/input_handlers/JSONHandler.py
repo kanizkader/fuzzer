@@ -1,7 +1,7 @@
 import json
 # import subprocess # for local testing
 # import os # for local testing
-from JSONHelper import *
+from .JSONHelper import JSONHelper
 
 class JSONHandler:
     @staticmethod

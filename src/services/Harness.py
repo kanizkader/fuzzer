@@ -46,7 +46,7 @@ class Harness:
         """
         Run a binary executable and capture all output (stdout, stderr).
         Provides detailed error information if something goes wrong.
-        """
+        """        
         try:
             process = subprocess.run(
                 [binary_path], 

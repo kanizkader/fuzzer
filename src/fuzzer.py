@@ -1,4 +1,5 @@
 import os
+import json
 from services.Harness import Harness
 
 def main():
@@ -20,6 +21,11 @@ def main():
         
         # If the input produces an error, write the input as a new line to output file
         for i in inputs:
+
+            # If payload is a dictionary, convert to JSON first
+            if isinstance(i, dict):
+                i = json.dumps(i)
+
             if not harness.run_binary(binary_path, i):
                 harness.write_hax(i, filename)
 
