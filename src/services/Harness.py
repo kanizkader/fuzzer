@@ -1,7 +1,7 @@
 import subprocess
 import os
 import logging
-from input_handlers import JsonHandler, PDFHandler
+from input_handlers import JSONHandler, PDFHandler
 
 class Harness:
     """
