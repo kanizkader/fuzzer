@@ -6,6 +6,9 @@ from JSONHelper import *
 class JSONHandler:
     @staticmethod
     def mutate(json_input):
+        """
+        Apply fuzzing to python dictionary.
+        """
         fuzzing_options = [
             JSONHelper.simple_buffer_overflow,
         ]
