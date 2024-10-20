@@ -1,9 +1,10 @@
 import pathlib
-from input_handlers import CSVHandler, JsonHandler, PDFHandler
+from input_handlers import CSVHandler, JSONHandler, PDFHandler
 
 class InputResolver:
     """
-    Given example input, calls the relevant file type handler and returns the output
+    Given example input, calls the relevant file type handler 
+    based on the filename and returns the output
     """
 
     @staticmethod
@@ -14,9 +15,9 @@ class InputResolver:
             case _ if "csv" in example_input:
                 return CSVHandler.CsvHandler.parse_input(example_input)
             case _ if "json" in example_input:
-                return JsonHandler.JsonHandler.send_json(example_input)
+                return JSONHandler.JSONHandler.send_json(example_input)
             case _ if "pdf" in example_input:
-                return PdfHandler.PdfHandler.send_json(example_input)
+                return PDFHandler.PdfHandler.send_json(example_input)
             case _:
                 print("File type unknown.")
                 return []
