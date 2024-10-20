@@ -5,87 +5,98 @@ class Schema:
         self.num_rows = 0
         self.num_cols = 0
         self.has_header = False
-        self.header = []
-        self.first_row = []
-        self.sep = ','
+        self.header = ''
+        self.valid_inputs = set()
 
 class CsvHandler:
     @staticmethod
-    def split_cells(row):
+    def format_row(char, num_cols):
         """
-        Splits rows of input file into cells
+        Returns a formatted csv row containing num_cols * char
         """
-        return [cell for cell in row]
-
+        return ','.join(char for _ in range(num_cols)) + '\n'
+        
     @staticmethod
-    def format_row(row):
+    def yield_valid(schema):
         """
-        Returns single row in csv format
-        or empty string if row is empty
+        Yields a single valid cell/field
         """
-        if len(row) == 0:
-            return ''
-        else:
-            return ','.join(cell for cell in row) + '\n'
+        inputs = list(schema.valid_inputs)
 
-    @staticmethod
-    def format_table(table):
-        """
-        Returns table in csv format
-        """
-        return ''.join(__class__.format_row(row) for row in table)
-
-    @staticmethod
-    def bad_row(schema):
-        """
-        Returns mutated row of given file based on known
-        bad inputs. Filepath will need to be changed.
-        """
         i = 0
+        while True:
+            yield inputs[i]
+            i = (i + 1) % len(inputs)
 
+    @staticmethod
+    def yield_bad():
+        """
+        Yields a single fuzzed cell/field.
+        Note path to input file may need to be changed.
+        """
+        store = []
         with open('/src/input_handlers/bad-strings.txt', 'r') as bad_strings:
             for bad_string in bad_strings:
-                if not bad_string.startswith(('#', '\n')): 
-                    bad_row = [cell for cell in schema.first_row]
-                    bad_row[i % schema.num_cols] = bad_string[:-1]
-                    i += 1
-                    yield bad_row
+                if not bad_string.startswith(('#', '\n')):
+                    store.append(bad_string[:-1])
+
+        i = 0
+        while True:
+            yield store[i]
+            i = (i + 1) % len(store)
+    
+    @staticmethod
+    def yield_input(schema):
+        """
+        Yields a single cell/field, alternating
+        between valid and fuzzed inputs
+        """
+        valid = __class__.yield_valid(schema)
+        bad = __class__.yield_bad()
+
+        i = 0
+        while True:
+            if i % 2 == 0:
+                yield next(valid)
+            else:
+                yield next(bad)
+            i += 1
 
     @staticmethod
     def mutate(inputs, schema, max_variants):
         """
-        Expands a given list of inputs with up to max_variants mutations.
+        Expands a given list of inputs with mutations.
         """
-        bad_row = __class__.bad_row(schema)
+        field = __class__.yield_input(schema)
 
         for _ in range(max_variants):
-            var = [schema.header]
-            for _ in range(schema.num_rows):
-                var.append(next(bad_row))
-            v1 = __class__.format_table(var)
-            print(v1, '\n')
-            inputs.append(v1)
+            i = schema.header + '\n'.join(','.join(next(field) for _ in range(schema.num_cols)) 
+                                          for _ in range(schema.num_rows))
+            inputs.append(i)
+
         return inputs
 
     @staticmethod
     def fuzz(schema):
         """
         Makes list of fuzzer inputs
+        Starting with various empty strings
         """
-        # Start with empty string
-        inputs = ['']
+        inputs = ['\0', '\n', '', '\r']
         # Add empty table
-        empty = __class__.format_row(['' for _ in range(schema.num_cols)])
-        inputs.append(__class__.format_row(schema.header) + empty)
+        inputs.append(schema.header + __class__.format_row('', schema.num_cols))
 
-        # Add many rows
-        inputs.append(__class__.format_row(schema.header) +
-                      __class__.format_row(['A' for _ in range(schema.num_cols)]) * 1000)
-        # Many more rows
-        inputs.append(__class__.format_row(schema.header) +
-                      __class__.format_row(['A' for _ in range(schema.num_cols)]) * 100000)
+        for num in (64, 256, 1024, 4096):
+            # Add many rows
+            inputs.append(schema.header +
+                          __class__.format_row('A', schema.num_cols) * num)
 
-        return __class__.mutate(inputs, schema, 100)
+            # Many columns
+            inputs.append(schema.header +
+                          __class__.format_row('A', num) * schema.num_rows)
+      
+        # Then mutate based on detected schema
+        return __class__.mutate(inputs, schema, 200)
 
     @staticmethod 
     def parse_input(filepath):
@@ -104,11 +115,12 @@ class CsvHandler:
             num_rows = 0
 
             if s.has_header:
-                s.header = __class__.split_cells(next(reader))
+                s.header = ','.join(cell for cell in next(reader)) + '\n'
             for row in reader:
                 if num_rows == 0:
-                    s.first_row = __class__.split_cells(row)
-                    s.num_cols = len(s.first_row)
+                    s.num_cols = len(row)
+                for cell in row:
+                    s.valid_inputs.add(cell)
                 num_rows += 1
             s.num_rows = num_rows
 
