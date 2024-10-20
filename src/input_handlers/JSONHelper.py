@@ -20,7 +20,7 @@ class JSONHelper:
         return bad_string_options
     
     @staticmethod
-    def bad_string(json_input, string):
+    def put_bad_string(json_input, string):
         """
         Appends bad string to the end of the input in dictionary.
         """
@@ -34,5 +34,17 @@ class JSONHelper:
             else:
                 results[key] = f"{value}{string}"
             
-            
         return results
+    
+    @staticmethod
+    def get_format_str():
+        return ['%s', '%d', '%x', '%p', '%n']
+    
+    @staticmethod
+    def put_format_str(json_input, format_string, num):
+        """
+        Injects diff format string options
+        """
+        return {key: f"{value}{format_string * num}" for key, value in json_input.items()}
+    
+    

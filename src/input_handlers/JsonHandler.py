@@ -21,7 +21,13 @@ class JSONHandler:
         # Apply bad strings 
         bad_strings = JSONHelper.get_bad_strings()
         for string in bad_strings:
-            fuzzed.append(JSONHelper.bad_string(json_input, string))
+            fuzzed.append(JSONHelper.put_bad_string(json_input, string))
+            
+        # Format String Options
+        fmts = JSONHelper.get_format_str()
+        for fmt in fmts:
+            for num in range(20, 200, 20):
+                fuzzed.append(JSONHelper.put_format_str(json_input, fmt, num))
             
         return fuzzed
 
