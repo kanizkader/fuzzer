@@ -1,4 +1,4 @@
 class JsonHandler:
     @staticmethod
-    def send_json():
-        return "jay son"
+    def send_json(example_input):
+        return ["jay son", "bad input"]
