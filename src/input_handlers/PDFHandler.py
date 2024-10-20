@@ -1,4 +1,4 @@
 class PdfHandler:
     @staticmethod
-    def send_pdf():
-        return "pee dee eff"
+    def parse_input(example_input):
+        return ["pee dee eff"]
