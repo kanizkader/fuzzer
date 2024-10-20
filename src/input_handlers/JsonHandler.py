@@ -32,8 +32,13 @@ class JSONHandler:
         """
         with open(filepath, 'r') as file:
             data = json.load(file)
-
-        return JSONHandler.mutate(data)
+            if isinstance(data, list):
+                fuzzed = []
+                for item in data:
+                    fuzzed.extend(JSONHandler.mutate(item))
+                return fuzzed_inputs
+            else:
+                return JSONHandler.mutate(data)
     
     @staticmethod
     def send_json():
