@@ -38,13 +38,17 @@ class JSONHelper:
     
     @staticmethod
     def get_format_str():
+        """
+        Returns list of format string options
+        """
         return ['%s', '%d', '%x', '%p', '%n']
     
     @staticmethod
-    def put_format_str(json_input, format_string, num):
+    def put_format_str(json_input, format_string):
         """
         Injects diff format string options
+        (Can change 200 to higher possibly?)
         """
-        return {key: f"{value}{format_string * num}" for key, value in json_input.items()}
+        return {key: f"{value}{format_string * 200}" for key, value in json_input.items()}
     
     

@@ -1,6 +1,6 @@
 import json
-import subprocess
-import os
+# import subprocess # for local testing
+# import os # for local testing
 from JSONHelper import *
 
 class JSONHandler:
@@ -26,15 +26,14 @@ class JSONHandler:
         # Format String Options
         fmts = JSONHelper.get_format_str()
         for fmt in fmts:
-            for num in range(20, 200, 20):
-                fuzzed.append(JSONHelper.put_format_str(json_input, fmt, num))
+            fuzzed.append(JSONHelper.put_format_str(json_input, fmt))
             
         return fuzzed
 
     @staticmethod
     def parse_input(filepath):
         """
-        Parses JSON and returns list of possible input dictionaries for harness
+        Parses JSON and returns list of possible input dictionaries for harness.
         """
         with open(filepath, 'r') as file:
             data = json.load(file)
@@ -50,6 +49,10 @@ class JSONHandler:
     def send_json():
         return "json"
 
+################################################################
+# Local Testing - REMOVE LATER 
+################################################################
+"""
 if __name__ == "__main__":
     filepath = "./binaries/example_inputs/json1.txt"
     inputs = JSONHandler.parse_input(filepath)
@@ -82,4 +85,4 @@ if __name__ == "__main__":
         os.remove(file_name)
             
         j += 1
-        
+"""        
