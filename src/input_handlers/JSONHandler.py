@@ -31,19 +31,18 @@ class JSONHandler:
         return fuzzed
 
     @staticmethod
-    def parse_input(filepath):
+    def parse_input(content):
         """
         Parses JSON and returns list of possible input dictionaries for harness.
         """
-        with open(filepath, 'r') as file:
-            data = json.load(file)
-            if isinstance(data, list):
-                fuzzed = []
-                for item in data:
-                    fuzzed.extend(JSONHandler.mutate(item))
-                return fuzzed_inputs
-            else:
-                return JSONHandler.mutate(data)
+        data = json.loads(content)
+        if isinstance(data, list):
+            fuzzed = []
+            for item in data:
+                fuzzed.extend(JSONHandler.mutate(item))
+            return fuzzed_inputs
+        else:
+            return JSONHandler.mutate(data)
     
     @staticmethod
     def send_json():
