@@ -72,6 +72,7 @@ class CsvHandler:
         for _ in range(max_variants):
             i = schema.header + '\n'.join(','.join(next(field) for _ in range(schema.num_cols)) 
                                           for _ in range(schema.num_rows))
+            print(f'{i}\n')
             inputs.append(i)
 
         return inputs
@@ -99,30 +100,34 @@ class CsvHandler:
         return __class__.mutate(inputs, schema, 200)
 
     @staticmethod 
-    def parse_input(filepath):
+    def parse_input(csvfile):
         """
-        Opens csv file, parses format and constructs mutations.
+        Parses csv file format and constructs mutations.
         Currently returns a list but could be modified depending
         on what format the harness expects.
         """
         s = Schema()
 
-        with open(filepath, 'r') as csvfile:
-            if csv.Sniffer().has_header(csvfile.read(1024)):
-               s.has_header = True
-            csvfile.seek(0)
-            reader = csv.reader(csvfile, delimiter=',')
-            num_rows = 0
+        if csv.Sniffer().has_header(csvfile):
+            s.has_header = True
 
-            if s.has_header:
-                s.header = ','.join(cell for cell in next(reader)) + '\n'
-            for row in reader:
-                if num_rows == 0:
-                    s.num_cols = len(row)
-                for cell in row:
-                    s.valid_inputs.add(cell)
-                num_rows += 1
-            s.num_rows = num_rows
+        rows = csvfile.split('\n')
+        if len(rows[-1]) == 0:
+            rows.pop()
+        s.num_rows = len(rows)
+
+        for i in range(s.num_rows):
+            print(f'Row: {rows[i]}')
+            # May need to look at regex split to avoid escaped chars
+            cells = rows[i].split(',')
+            if i == 0:
+                s.num_cols = len(cells)
+                if s.has_header:
+                    s.header = rows[i] + '\n'
+                    s.num_rows -= 1
+                    continue
+            for cell in cells:
+                s.valid_inputs.add(cell)
 
         return __class__.fuzz(s)
 
