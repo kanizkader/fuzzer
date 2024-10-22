@@ -27,6 +27,10 @@ class JSONHandler:
         fmts = JSONHelper.get_format_str()
         for fmt in fmts:
             fuzzed.append(JSONHelper.put_format_str(json_input, fmt))
+
+        # Apply byte flips
+        for i in range(40):
+            fuzzed.append(JSONHelper.byte_flip(json_input, i)) 
             
         return fuzzed
 
