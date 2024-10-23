@@ -1,6 +1,4 @@
 import json
-# import subprocess # for local testing
-# import os # for local testing
 from .JSONHelper import JSONHelper
 
 class JSONHandler:
@@ -47,41 +45,3 @@ class JSONHandler:
     @staticmethod
     def send_json():
         return "json"
-
-################################################################
-# Local Testing - REMOVE LATER 
-################################################################
-"""
-if __name__ == "__main__":
-    filepath = "./binaries/example_inputs/json1.txt"
-    inputs = JSONHandler.parse_input(filepath)
-
-    # Print fuzzed inputs
-    j = 0
-    for i in inputs:
-        print(f"---- Fuzz {j} -----")
-        # print(i)
-        file_name = f'{j}.txt'
-        try:
-            print("Filename - " + file_name + ":")
-            
-            with open(file_name, 'w') as f:
-                json.dump(i, f)
-            
-            # Run binary with input files
-            with open(file_name, 'r') as input_file:
-                result = subprocess.run('./binaries/binaries/json1', stdin=input_file, capture_output=True, text=True, timeout=2)
-            
-            # Print stdout and stderr
-            print("Stdout:")
-            print(result.stdout)
-            print("Stderr:")
-            print(result.stderr)
-            
-        except Exception as e:
-            print(f"Error occurred: {e}")
-            
-        os.remove(file_name)
-            
-        j += 1
-"""        
