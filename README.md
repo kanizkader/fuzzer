@@ -22,32 +22,21 @@ If you need to add binaries to the project, you can do so by adding them to the 
 TODO
 
 ## Mutation Strategies
-
-### Basic
 - Bit Flips: Not Implemented
 - Byte Flips: Not Implemented
 - Known Ints: Not Implemented
-
-### Intermediate
 - Repeated Parts: Not Implemented  
 - Keyword Extraction: Not Implemented
 - Arithmetic: Not Implemented
-
-### Advanced
 - Coverage-based mutations: Not Implemented 
 
 ## File Formats
 
-### Basic
 - CSV: Implemented
 - JSON: Implemented 
 - XML: Not Implemented  
-
-### Intermediate
 - JPEG: Not Implemented 
 - ELF: Not Implemented  
-
-### Advanced
 - PDF: Not Implemented   
 
 # Harness
