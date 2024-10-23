@@ -46,6 +46,8 @@ class Harness:
         """
         Run a binary executable and capture all output (stdout, stderr).
         Provides detailed error information if something goes wrong.
+        
+        Returns True/False, stdout, stderr, returncode
         """        
         try:
             process = subprocess.run(
@@ -59,20 +61,23 @@ class Harness:
             # Print the program output
             print(f"Running '{binary_path}' with input '{payload}'\n")
             print(f"Standard Output:\n{process.stdout}")
+            return True, process.stdout, process.stderr, process.returncode
         except subprocess.CalledProcessError as e:
             print(f"An error occurred while running '{binary_path}' with input '{payload}': {e}")
             print(f"Exit Code: {e.returncode}")
             print(f"Standard Output:\n{e.stdout}")
             print(f"Standard Error:\n{e.stderr}")
-            return False
+            return False, e.stdout, e.stderr, e.returncode
         except FileNotFoundError as fnf_error:
             print(f"File not found: {binary_path}. Error: {fnf_error}")
+            return False, None, str(fnf_error), None
         except Exception as ex:
             print(f"An unexpected error occurred: {ex}")
-        return True
+            return False, None, str(ex), None
+        # return True
 
     @staticmethod
-    def write_hax(bad_input, filename):
+    def write_hax(bad_input, filename, stdout=None, stderr=None, exit_code=None):
         """
         Writes output to a file and logs errors if anything goes wrong.
         """
@@ -87,7 +92,14 @@ class Harness:
         try:
             with open(output_file, 'a') as f:
                 print(f"Writing bad input to '{output_file}' via Harness\n")
-                f.write(bad_input)
+                f.write("----------------------------------------------------------------\n")
+                f.write(f"Input:\n{bad_input}\n\n")
+                if stdout:
+                    f.write(f"Standard Output:\n{stdout}\n")
+                if stderr:
+                    f.write(f"Standard Error:\n{stderr}\n")
+                if exit_code is not None:
+                    f.write(f"Exit Code:\n{exit_code}\n")
                 f.write('\n')
         except Exception as e:
             logging.error(f"An error occurred while writing to the file: {e}")
