@@ -126,7 +126,7 @@ class Harness:
         elif exit_code == 130:
             return "Termination by Ctrl+C or SIGINT (termination code 2 or keyboard interrupt)."
         elif exit_code == 134:
-             return "Termination by SIGABRT (signal aborted) -- Crash ignored, expected behaviour."
+             return "Termination by SIGABRT (signal aborted) -- IGNORED."
         elif exit_code == 139:
             return "Termination by SIGSEV (segmentation fault)."
         elif exit_code == 143:
