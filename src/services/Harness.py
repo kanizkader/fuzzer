@@ -93,8 +93,8 @@ class Harness:
         
         try:
             with open(output_file, 'a') as f:
-                print(f"Writing bad input to '{output_file}' via Harness\n")
                 if exit_code != 134:
+                    print(f"Writing bad input to '{output_file}' via Harness\n")
                     f.write("----------------------------------------------------------------\n")
                     f.write(f"Input:\n{bad_input}\n\n")
                     if stdout:
