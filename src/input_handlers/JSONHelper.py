@@ -1,3 +1,6 @@
+import random
+import json
+
 class JSONHelper:
     @staticmethod
     def simple_buffer_overflow(json_input):
@@ -50,5 +53,44 @@ class JSONHelper:
         (Can change 200 to higher possibly?)
         """
         return {key: f"{value}{format_string * 200}" for key, value in json_input.items()}
+
+    @staticmethod
+    def byte_flip_string(json_input):
+        """
+        Flips random bytes for each value in given JSON input
+        Returns result as strings in JSON
+        """
+        random.seed()
+        new_input = json_input.copy()
+
+        for key, value in new_input.items():
+            bytearr = bytearray(str(value).encode('utf-8'))
+
+            for i in range(20): # Can change the number of flipped bytes
+                byte = random.randrange(128) # 128 byte ASCII value
+                pos = random.randrange(len(bytearr))
+                bytearr[pos] = byte ^ 1
+            
+            new_input[key] = bytearr.decode('utf-8')
+        
+        return new_input
     
-    
+    def byte_flip(json_input):
+        """
+        Flips random bytes for each value in given JSON input
+        Returns result as raw bytes in JSON
+        """
+        random.seed()
+        new_input = json_input.copy()
+
+        for key, value in new_input.items():
+            bytearr = bytearray(str(value).encode('utf-8'))
+
+            for i in range(20): # Can change the number of flipped bytes
+                byte = random.randrange(256)
+                pos = random.randrange(len(bytearr))
+                bytearr[pos] = byte ^ 1
+            
+            new_input[key] = bytes(bytearr)
+        
+        return new_input

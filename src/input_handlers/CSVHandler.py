@@ -1,4 +1,6 @@
 import csv
+import random
+import string
 
 class Schema:
     def __init__(self):
@@ -61,6 +63,21 @@ class CsvHandler:
             else:
                 yield next(bad)
             i += 1
+    
+    @staticmethod
+    def byte_flip():
+        """
+        Flips random bytes for each value in given JSON input
+        Returns result as strings in JSON
+        """
+        random.seed()
+        
+        while True:
+            length = random.randrange(20) # Can change max input length
+            randStr = ''.join(random.choice(string.printable) for _ in range(length))
+            randStr = randStr.replace(',', '') # remove commas
+            print(randStr)
+            yield randStr
 
     @staticmethod
     def mutate(inputs, schema, max_variants):
@@ -68,12 +85,20 @@ class CsvHandler:
         Expands a given list of inputs with mutations.
         """
         field = __class__.yield_input(schema)
+        flip = __class__.byte_flip()
+
+        #for _ in range(max_variants):
+        #    i = schema.header + '\n'.join(','.join(next(field) for _ in range(schema.num_cols)) 
+        #                                  for _ in range(schema.num_rows))
+        #    print(f'{i}\n')
+        #    inputs.append(i)
 
         for _ in range(max_variants):
-            i = schema.header + '\n'.join(','.join(next(field) for _ in range(schema.num_cols)) 
+            i = schema.header + '\n'.join(','.join(next(flip) for _ in range(schema.num_cols)) 
                                           for _ in range(schema.num_rows))
             print(f'{i}\n')
             inputs.append(i)
+
 
         return inputs
 
