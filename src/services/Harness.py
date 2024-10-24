@@ -94,17 +94,18 @@ class Harness:
         try:
             with open(output_file, 'a') as f:
                 print(f"Writing bad input to '{output_file}' via Harness\n")
-                f.write("----------------------------------------------------------------\n")
-                f.write(f"Input:\n{bad_input}\n\n")
-                if stdout:
-                    f.write(f"Standard Output:\n{stdout}\n")
-                if stderr:
-                    f.write(f"Standard Error:\n{stderr}\n")
-                if exit_code is not None:
-                    f.write(f"Exit Code:\n{exit_code}\n\n")
-                if crash_type is not None:
-                    f.write(f"Possible Crash Type:\n{crash_type}\n")
-                f.write('\n')
+                if exit_code is not 134:
+                    f.write("----------------------------------------------------------------\n")
+                    f.write(f"Input:\n{bad_input}\n\n")
+                    if stdout:
+                        f.write(f"Standard Output:\n{stdout}\n")
+                    if stderr:
+                        f.write(f"Standard Error:\n{stderr}\n")
+                    if exit_code is not None:
+                        f.write(f"Exit Code:\n{exit_code}\n\n")
+                    if crash_type is not None:
+                        f.write(f"Possible Crash Type:\n{crash_type}\n")
+                    f.write('\n')
         except Exception as e:
             logging.error(f"An error occurred while writing to the file: {e}")
             print(f"An error occurred while writing to the file: {e}")
