@@ -1,6 +1,4 @@
 import json
-# import subprocess # for local testing
-# import os # for local testing
 from .JSONHelper import JSONHelper
 
 class JSONHandler:
@@ -35,58 +33,19 @@ class JSONHandler:
         return fuzzed
 
     @staticmethod
-    def parse_input(filepath):
+    def parse_input(content):
         """
         Parses JSON and returns list of possible input dictionaries for harness.
         """
-        with open(filepath, 'r') as file:
-            data = json.load(file)
-            if isinstance(data, list):
-                fuzzed = []
-                for item in data:
-                    fuzzed.extend(JSONHandler.mutate(item))
-                return fuzzed_inputs
-            else:
-                return JSONHandler.mutate(data)
+        data = json.loads(content)
+        if isinstance(data, list):
+            fuzzed = []
+            for item in data:
+                fuzzed.extend(JSONHandler.mutate(item))
+            return fuzzed_inputs
+        else:
+            return JSONHandler.mutate(data)
     
     @staticmethod
     def send_json():
         return "json"
-
-################################################################
-# Local Testing - REMOVE LATER 
-################################################################
-"""
-if __name__ == "__main__":
-    filepath = "./binaries/example_inputs/json1.txt"
-    inputs = JSONHandler.parse_input(filepath)
-
-    # Print fuzzed inputs
-    j = 0
-    for i in inputs:
-        print(f"---- Fuzz {j} -----")
-        # print(i)
-        file_name = f'{j}.txt'
-        try:
-            print("Filename - " + file_name + ":")
-            
-            with open(file_name, 'w') as f:
-                json.dump(i, f)
-            
-            # Run binary with input files
-            with open(file_name, 'r') as input_file:
-                result = subprocess.run('./binaries/binaries/json1', stdin=input_file, capture_output=True, text=True, timeout=2)
-            
-            # Print stdout and stderr
-            print("Stdout:")
-            print(result.stdout)
-            print("Stderr:")
-            print(result.stderr)
-            
-        except Exception as e:
-            print(f"Error occurred: {e}")
-            
-        os.remove(file_name)
-            
-        j += 1
-"""        

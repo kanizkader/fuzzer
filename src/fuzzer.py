@@ -26,8 +26,9 @@ def main():
             if isinstance(i, dict):
                 i = json.dumps(i)
 
-            if not harness.run_binary(binary_path, i):
-                harness.write_hax(i, filename)
+            success, stdout, stderr, exit_code, crash_type = harness.run_binary(binary_path, i)
+            if not success:
+                harness.write_hax(i, filename, stdout, stderr, exit_code, crash_type)
 
 
 if __name__ == '__main__':
