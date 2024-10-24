@@ -56,13 +56,13 @@ class CsvHandler:
         valid = __class__.yield_valid(schema)
         bad = __class__.yield_bad()
 
-        i = 0
+        random.seed(123)
         while True:
-            if i % 2 == 0:
-                yield next(valid)
-            else:
+            i = random.randrange(0, 3)
+            if i == 2:
                 yield next(bad)
-            i += 1
+            else:
+                yield next(valid)
     
     @staticmethod
     def byte_flip():
@@ -70,7 +70,7 @@ class CsvHandler:
         Flips random bytes for each value in given JSON input
         Returns result as strings in JSON
         """
-        random.seed()
+        random.seed(123)
         
         while True:
             length = random.randrange(20) # Can change max input length
@@ -87,17 +87,16 @@ class CsvHandler:
         field = __class__.yield_input(schema)
         flip = __class__.byte_flip()
 
-        #for _ in range(max_variants):
-        #    i = schema.header + '\n'.join(','.join(next(field) for _ in range(schema.num_cols)) 
-        #                                  for _ in range(schema.num_rows))
-        #    print(f'{i}\n')
-        #    inputs.append(i)
-
         for _ in range(max_variants):
-            i = schema.header + '\n'.join(','.join(next(flip) for _ in range(schema.num_cols)) 
+            i = schema.header + '\n'.join(','.join(next(field) for _ in range(schema.num_cols)) 
                                           for _ in range(schema.num_rows))
-            print(f'{i}\n')
             inputs.append(i)
+
+        #for _ in range(max_variants):
+            #i = schema.header + '\n'.join(','.join(next(flip) for _ in range(schema.num_cols)) 
+                                          for _ in range(schema.num_rows))
+            #print(f'{i}\n')
+            #inputs.append(i)
 
 
         return inputs
@@ -112,14 +111,18 @@ class CsvHandler:
         # Add empty table
         inputs.append(schema.header + __class__.format_row('', schema.num_cols))
 
-        for num in (64, 256, 1024, 4096):
+        for num in (16, 64, 256, 1024):
             # Add many rows
             inputs.append(schema.header +
-                          __class__.format_row('A', schema.num_cols) * num)
+                          __class__.format_row('abcdefgh', schema.num_cols) * num)
 
             # Many columns
             inputs.append(schema.header +
-                          __class__.format_row('A', num) * schema.num_rows)
+                          __class__.format_row('abcdefgh', num) * schema.num_rows)
+
+            # Long cell contents
+            inputs.append(schema.header +
+                          __class__.format_row('abc' * num, schema.num_cols) * schema.num_rows)
       
         # Then mutate based on detected schema
         return __class__.mutate(inputs, schema, 200)
@@ -142,7 +145,6 @@ class CsvHandler:
         s.num_rows = len(rows)
 
         for i in range(s.num_rows):
-            print(f'Row: {rows[i]}')
             # May need to look at regex split to avoid escaped chars
             cells = rows[i].split(',')
             if i == 0:
