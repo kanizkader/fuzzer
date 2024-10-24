@@ -17,18 +17,22 @@ class JSONHandler:
             fuzzed.append(fuzz(json_input))
         
         # Apply bad strings 
-        bad_strings = JSONHelper.get_bad_strings()
-        for string in bad_strings:
-            fuzzed.append(JSONHelper.put_bad_string(json_input, string))
+        #bad_strings = JSONHelper.get_bad_strings()
+        #for string in bad_strings:
+        #    fuzzed.append(JSONHelper.put_bad_string(json_input, string))
             
         # Format String Options
-        fmts = JSONHelper.get_format_str()
-        for fmt in fmts:
-            fuzzed.append(JSONHelper.put_format_str(json_input, fmt))
+        #fmts = JSONHelper.get_format_str()
+        #for fmt in fmts:
+        #    fuzzed.append(JSONHelper.put_format_str(json_input, fmt))
 
         # Apply byte flips
         for i in range(40):
-            fuzzed.append(JSONHelper.byte_flip(json_input, i)) 
+            fuzzed.append(JSONHelper.byte_flip_string(json_input)) 
+
+        # Apply byte flips
+        #for i in range(40):
+        #    fuzzed.append(JSONHelper.byte_flip(json_input)) 
             
         return fuzzed
 
