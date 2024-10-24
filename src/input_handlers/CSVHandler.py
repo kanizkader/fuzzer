@@ -94,7 +94,7 @@ class CsvHandler:
 
         #for _ in range(max_variants):
             #i = schema.header + '\n'.join(','.join(next(flip) for _ in range(schema.num_cols)) 
-                                          for _ in range(schema.num_rows))
+                                          #for _ in range(schema.num_rows))
             #print(f'{i}\n')
             #inputs.append(i)
 
