@@ -1,3 +1,4 @@
+# General
 ### Running the Fuzzer
 To run the fuzzer, you only need to use the following command in your terminal to trigger the shell script:
 ```
@@ -15,3 +16,28 @@ When you need to add input handlers to the project, you can do so by editing the
 
 ### Adding Binaries
 If you need to add binaries to the project, you can do so by adding them to the `binaries` folder. Please make sure to also add a corresponding example input file to the `example_inputs` folder so that we all code solutions properly. The fuzzer will automatically pull them into the docker container when you run the fuzzer.
+
+# Fuzzer Functionality
+
+TODO
+
+## Mutation Strategies
+- Bit Flips: Not Implemented
+- Byte Flips: Not Implemented
+- Known Ints: Not Implemented
+- Repeated Parts: Not Implemented  
+- Keyword Extraction: Not Implemented
+- Arithmetic: Not Implemented
+- Coverage-based mutations: Not Implemented 
+
+## File Formats
+
+- CSV: Implemented
+- JSON: Implemented 
+- XML: Not Implemented  
+- JPEG: Not Implemented 
+- ELF: Not Implemented  
+- PDF: Not Implemented   
+
+# Harness
+TODO
