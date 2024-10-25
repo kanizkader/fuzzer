@@ -21,6 +21,13 @@ class Harness:
         return "hArNesS"
 
     @staticmethod
+    def truncate(s, limit):
+        if len(s) > limit:
+            return s[:limit] + '...'
+        else:
+            return s
+
+    @staticmethod
     def check_binary_exists(example):
         """
         Given the file name of the example input, checks if there is a corresponding binary file.
@@ -59,12 +66,14 @@ class Harness:
                 shell=True
             )
             # Print the program output
-            print(f"Running '{binary_path}' with input '{payload}'\n")
+            print(f"Running '{binary_path}' with input:")
+            print(f"'{__class__.truncate(payload, 100)}'\n")
             print(f"Standard Output:\n{process.stdout}")
             return True, process.stdout, process.stderr, process.returncode, None
         except subprocess.CalledProcessError as e:
             crash_type = Harness.detect_crash(e.returncode)
-            print(f"An error occurred while running '{binary_path}' with input '{payload}': {e}")
+            print(f"An error occurred while running '{binary_path}' with input:")
+            print(f"'{__class__.truncate(payload, 100)}':\n{e}")
             print(f"Exit Code: {e.returncode}")
             print(f"Standard Output:\n{e.stdout}")
             print(f"Standard Error:\n{e.stderr}")
@@ -116,20 +125,20 @@ class Harness:
         Looks at exit code and identifies possible type of crash.
         """
         if exit_code == 2:
-            return "Incorrect command (or argument) usage."
+            return "Incorrect command (or argument) usage.\n"
         elif exit_code == 126:
-            return "Permission denied (or) unable to execute."
+            return "Permission denied (or) unable to execute.\n"
         elif exit_code == 127:
-            return "Command not found, or PATH error."
+            return "Command not found, or PATH error.\n"
         elif exit_code == 128:
-            return "Command terminated externally by passing signals, or it encountered a fatal error."
+            return "Command terminated externally by passing signals, or it encountered a fatal error.\n"
         elif exit_code == 130:
-            return "Termination by Ctrl+C or SIGINT (termination code 2 or keyboard interrupt)."
+            return "Termination by Ctrl+C or SIGINT (termination code 2 or keyboard interrupt).\n"
         elif exit_code == 134:
-             return "Termination by SIGABRT (signal aborted) -- IGNORED."
+            return "Termination by SIGABRT (signal aborted) -- IGNORED.\n"
         elif exit_code == 139:
-            return "Termination by SIGSEV (segmentation fault)."
+            return "Termination by SIGSEV (segmentation fault).\n"
         elif exit_code == 143:
-            return "Termination by SIGTERM (default termination)."
+            return "Termination by SIGTERM (default termination).\n"
         
         return None
