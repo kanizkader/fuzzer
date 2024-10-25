@@ -58,26 +58,32 @@ class CsvHandler:
 
         random.seed(123)
         while True:
-            i = random.randrange(0, 3)
-            if i == 2:
+            i = random.randrange(0, 6)
+            if i == 4:
                 yield next(bad)
+            if i == 5:
+                yield (next(valid) + next(bad))
             else:
                 yield next(valid)
     
     @staticmethod
-    def byte_flip():
+    def byte_flip(file_contents, max_flips):
         """
-        Flips random bytes for each value in given JSON input
-        Returns result as strings in JSON
+        Flips random bytes for each value in given CSV input
+        Returns result as strings
         """
         random.seed(123)
-        
-        while True:
-            length = random.randrange(20) # Can change max input length
-            randStr = ''.join(random.choice(string.printable) for _ in range(length))
-            randStr = randStr.replace(',', '') # remove commas
-            print(randStr)
-            yield randStr
+
+        for flip in range(max_flips):
+            f = ''
+            for char in file_contents:
+                do_flip = random.randrange(100)
+                if do_flip < 10:
+                    rand_char = chr(random.randrange(ord(' '), ord('~')))
+                    f += rand_char
+                else:
+                    f += char
+            yield f
 
     @staticmethod
     def mutate(inputs, schema, max_variants):
@@ -85,24 +91,16 @@ class CsvHandler:
         Expands a given list of inputs with mutations.
         """
         field = __class__.yield_input(schema)
-        flip = __class__.byte_flip()
 
         for _ in range(max_variants):
             i = schema.header + '\n'.join(','.join(next(field) for _ in range(schema.num_cols)) 
                                           for _ in range(schema.num_rows))
             inputs.append(i)
 
-        #for _ in range(max_variants):
-            #i = schema.header + '\n'.join(','.join(next(flip) for _ in range(schema.num_cols)) 
-                                          #for _ in range(schema.num_rows))
-            #print(f'{i}\n')
-            #inputs.append(i)
-
-
         return inputs
 
     @staticmethod
-    def fuzz(schema):
+    def fuzz(csvfile, schema):
         """
         Makes list of fuzzer inputs
         Starting with various empty strings
@@ -123,9 +121,13 @@ class CsvHandler:
             # Long cell contents
             inputs.append(schema.header +
                           __class__.format_row('abc' * num, schema.num_cols) * schema.num_rows)
-      
+
+        # Add a few byte flips
+        for flip in __class__.byte_flip(csvfile, 30):
+            inputs.append(flip)
+
         # Then mutate based on detected schema
-        return __class__.mutate(inputs, schema, 200)
+        return __class__.mutate(inputs, schema, 300)
 
     @staticmethod 
     def parse_input(csvfile):
@@ -155,8 +157,8 @@ class CsvHandler:
                     continue
             for cell in cells:
                 s.valid_inputs.add(cell)
-
-        return __class__.fuzz(s)
+        
+        return __class__.fuzz(csvfile, s)
 
     @staticmethod
     def send_csv():
