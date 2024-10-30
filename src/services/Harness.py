@@ -23,7 +23,7 @@ class Harness:
     @staticmethod
     def truncate(s, limit):
         if len(s) > limit:
-            return s[:limit] + '...'
+            return s[:limit] + b'...'
         else:
             return s
 
@@ -61,13 +61,12 @@ class Harness:
                 [binary_path], 
                 input=payload,
                 capture_output=True, 
-                text=True, 
                 check=True,
                 shell=True
             )
             # Print the program output
             print(f"Running '{binary_path}' with input:")
-            print(f"'{__class__.truncate(payload, 100)}'\n")
+            print(f"{__class__.truncate(payload, 100)}\n")
             print(f"Standard Output:\n{process.stdout}")
             return True, process.stdout, process.stderr, process.returncode, None
         except subprocess.CalledProcessError as e:
