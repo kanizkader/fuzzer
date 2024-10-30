@@ -2,12 +2,14 @@ import csv
 import random
 import string
 
+random.seed(123)
+
 class Schema:
     def __init__(self):
         self.num_rows = 0
         self.num_cols = 0
         self.has_header = False
-        self.header = ''
+        self.header = b''
         self.valid_inputs = set()
 
 class CsvHandler:
@@ -16,7 +18,7 @@ class CsvHandler:
         """
         Returns a formatted csv row containing num_cols * char
         """
-        return ','.join(char for _ in range(num_cols)) + '\n'
+        return b','.join(char for _ in range(num_cols)) + b'\n'
         
     @staticmethod
     def yield_valid(schema):
@@ -40,7 +42,7 @@ class CsvHandler:
         with open('/src/input_handlers/bad-strings.txt', 'r') as bad_strings:
             for bad_string in bad_strings:
                 if not bad_string.startswith(('#', '\n')):
-                    store.append(bad_string[:-1])
+                    store.append(bad_string[:-1].encode())
 
         i = 0
         while True:
@@ -56,7 +58,6 @@ class CsvHandler:
         valid = __class__.yield_valid(schema)
         bad = __class__.yield_bad()
 
-        random.seed(123)
         while True:
             i = random.randrange(0, 6)
             if i == 4:
@@ -93,7 +94,7 @@ class CsvHandler:
         field = __class__.yield_input(schema)
 
         for _ in range(max_variants):
-            i = schema.header + '\n'.join(','.join(next(field) for _ in range(schema.num_cols)) 
+            i = schema.header + b'\n'.join(b','.join(next(field) for _ in range(schema.num_cols)) 
                                           for _ in range(schema.num_rows))
             inputs.append(i)
 
@@ -105,26 +106,26 @@ class CsvHandler:
         Makes list of fuzzer inputs
         Starting with various empty strings
         """
-        inputs = ['\0', '\n', '', '\r']
+        inputs = [b'\x00', b'\n', b'', b'\r', b'\r\n']
         # Add empty table
-        inputs.append(schema.header + __class__.format_row('', schema.num_cols))
+        inputs.append(schema.header + __class__.format_row(b'', schema.num_cols))
 
         for num in (16, 64, 256, 1024):
             # Add many rows
             inputs.append(schema.header +
-                          __class__.format_row('abcdefgh', schema.num_cols) * num)
+                          __class__.format_row(b'abcdefgh', schema.num_cols) * num)
 
             # Many columns
             inputs.append(schema.header +
-                          __class__.format_row('abcdefgh', num) * schema.num_rows)
+                          __class__.format_row(b'abcdefgh', num) * schema.num_rows)
 
             # Long cell contents
             inputs.append(schema.header +
-                          __class__.format_row('abc' * num, schema.num_cols) * schema.num_rows)
+                          __class__.format_row(b'abc' * num, schema.num_cols) * schema.num_rows)
 
         # Add a few byte flips
-        for flip in __class__.byte_flip(csvfile, 30):
-            inputs.append(flip)
+        #for flip in __class__.byte_flip(csvfile, 30):
+            #inputs.append(flip)
 
         # Then mutate based on detected schema
         return __class__.mutate(inputs, schema, 300)
@@ -152,11 +153,12 @@ class CsvHandler:
             if i == 0:
                 s.num_cols = len(cells)
                 if s.has_header:
-                    s.header = rows[i] + '\n'
+                    h = rows[i] + '\n'
+                    s.header = h.encode()
                     s.num_rows -= 1
                     continue
             for cell in cells:
-                s.valid_inputs.add(cell)
+                s.valid_inputs.add(cell.encode())
         
         return __class__.fuzz(csvfile, s)
 
