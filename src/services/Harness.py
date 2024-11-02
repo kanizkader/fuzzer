@@ -22,6 +22,8 @@ class Harness:
 
     @staticmethod
     def truncate(s, limit):
+        if isinstance(s, bytearray):
+            return s
         if len(s) > limit:
             return s[:limit] + b'...'
         else:
