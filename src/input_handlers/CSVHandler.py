@@ -1,6 +1,7 @@
 import csv
 import random
 import string
+import services.MutationHelper as mh
 
 random.seed(123)
 
@@ -31,23 +32,6 @@ class CsvHandler:
         while True:
             yield inputs[i]
             i = (i + 1) % len(inputs)
-
-    @staticmethod
-    def yield_bad():
-        """
-        Yields a single fuzzed cell/field.
-        Note path to input file may need to be changed.
-        """
-        store = []
-        with open('/src/input_handlers/bad-strings.txt', 'r') as bad_strings:
-            for bad_string in bad_strings:
-                if not bad_string.startswith(('#', '\n')):
-                    store.append(bad_string[:-1].encode())
-
-        i = 0
-        while True:
-            yield store[i]
-            i = (i + 1) % len(store)
     
     @staticmethod
     def yield_input(schema):
@@ -56,7 +40,7 @@ class CsvHandler:
         between valid and fuzzed inputs
         """
         valid = __class__.yield_valid(schema)
-        bad = __class__.yield_bad()
+        bad = mh.yield_bad_string()
 
         while True:
             i = random.randrange(0, 6)
@@ -66,25 +50,6 @@ class CsvHandler:
                 yield (next(valid) + next(bad))
             else:
                 yield next(valid)
-    
-    @staticmethod
-    def byte_flip(file_contents, max_flips):
-        """
-        Flips random bytes for each value in given CSV input
-        Returns result as strings
-        """
-        random.seed(123)
-
-        for flip in range(max_flips):
-            f = ''
-            for char in file_contents:
-                do_flip = random.randrange(100)
-                if do_flip < 10:
-                    rand_char = chr(random.randrange(ord(' '), ord('~')))
-                    f += rand_char
-                else:
-                    f += char
-            yield f
 
     @staticmethod
     def mutate(inputs, schema, max_variants):
@@ -123,12 +88,12 @@ class CsvHandler:
             inputs.append(schema.header +
                           __class__.format_row(b'abc' * num, schema.num_cols) * schema.num_rows)
 
-        # Add a few byte flips
-        #for flip in __class__.byte_flip(csvfile, 30):
-            #inputs.append(flip)
+        # Add a few bit flips
+        for flip in mh.flip(csvfile.encode(), 50):
+            inputs.append(flip)
 
         # Then mutate based on detected schema
-        return __class__.mutate(inputs, schema, 300)
+        return __class__.mutate(inputs, schema, 200)
 
     @staticmethod 
     def parse_input(csvfile):
