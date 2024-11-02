@@ -22,8 +22,8 @@ If you need to add binaries to the project, you can do so by adding them to the 
 TODO
 
 ## Mutation Strategies
-- Bit Flips: Not Implemented
-- Byte Flips: Not Implemented
+- Bit Flips: Implemented
+- Byte Flips: Implemented
 - Known Ints: Not Implemented
 - Repeated Parts: Not Implemented  
 - Keyword Extraction: Not Implemented
