@@ -22,6 +22,8 @@ class Harness:
 
     @staticmethod
     def truncate(s, limit):
+        if len(s) == 0:
+            return ''
         if isinstance(s, bytearray):
             return s
         if len(s) > limit:
@@ -57,36 +59,38 @@ class Harness:
         Provides detailed error information if something goes wrong.
         
         Returns True/False, stdout, stderr, returncode
-        """        
+        """  
+        success = False 
+        crash_type = None
+
         try:
-            process = subprocess.run(
-                [binary_path], 
-                input=payload,
-                capture_output=True, 
-                check=True,
+            process = subprocess.Popen(
+                [binary_path],
+                stdin=subprocess.PIPE,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
                 shell=True
             )
-            # Print the program output
-            print(f"Running '{binary_path}' with input:")
-            print(f"{__class__.truncate(payload, 100)}\n")
-            print(f"Standard Output:\n{process.stdout}")
-            return True, process.stdout, process.stderr, process.returncode, None
-        except subprocess.CalledProcessError as e:
-            crash_type = Harness.detect_crash(e.returncode)
-            print(f"An error occurred while running '{binary_path}' with input:")
-            print(f"'{__class__.truncate(payload, 100)}':\n{e}")
-            print(f"Exit Code: {e.returncode}")
-            print(f"Standard Output:\n{e.stdout}")
-            print(f"Standard Error:\n{e.stderr}")
-            print(f"Possible Crash Type: \n{crash_type}")
-            return False, e.stdout, e.stderr, e.returncode, crash_type
-        except FileNotFoundError as fnf_error:
-            print(f"File not found: {binary_path}. Error: {fnf_error}")
-            return False, None, str(fnf_error), None, None
-        except Exception as ex:
-            print(f"An unexpected error occurred: {ex}")
-            return False, None, str(ex), None, None
-        # return True
+            
+            print(f'Running {binary_path}...'.ljust(32), f'Input: {__class__.truncate(payload, 26)}')
+            stdout, stderr = process.communicate(payload, timeout=15)
+            print(f'Return code: {process.returncode}'.ljust(32), f'Output: {__class__.truncate(stdout, 25)}\n')
+
+            if process.returncode != 0:
+                crash_type = Harness.detect_crash(process.returncode)
+                print(f'[*] Possible crash detected: {crash_type}', end='')
+            else:
+                success = True
+        except subprocess.TimeoutExpired:
+            print('Error while running binary: timeout.')
+            process.kill()
+            stdout, stderr = process.communicate()
+        except Exception as e:
+            stdout = None
+            stderr = None
+            print(f'Error while running binary: {e}')
+
+        return success, stdout, stderr, process.returncode, crash_type 
 
     @staticmethod
     def write_hax(bad_input, filename, stdout=None, stderr=None, exit_code=None, crash_type=None):
@@ -103,8 +107,10 @@ class Harness:
         
         try:
             with open(output_file, 'a') as f:
-                if exit_code != 134:
-                    print(f"Writing bad input to '{output_file}' via Harness\n")
+                if exit_code == 134:
+                    print(f'[*] Action: IGNORED\n')
+                else:
+                    print(f"[*] Action: Writing bad input to '{output_file}' via Harness\n")
                     f.write("----------------------------------------------------------------\n")
                     f.write(f"Input:\n{bad_input}\n\n")
                     if stdout:
@@ -118,7 +124,7 @@ class Harness:
                     f.write('\n')
         except Exception as e:
             logging.error(f"An error occurred while writing to the file: {e}")
-            print(f"An error occurred while writing to the file: {e}")
+            print(f"An error occurred while writing to the file: {e}")   
             
     @staticmethod
     def detect_crash(exit_code):
@@ -136,7 +142,7 @@ class Harness:
         elif exit_code == 130:
             return "Termination by Ctrl+C or SIGINT (termination code 2 or keyboard interrupt).\n"
         elif exit_code == 134:
-            return "Termination by SIGABRT (signal aborted) -- IGNORED.\n"
+            return "Termination by SIGABRT (signal aborted)\n"
         elif exit_code == 139:
             return "Termination by SIGSEV (segmentation fault).\n"
         elif exit_code == 143:
