@@ -1,1 +1,2 @@
 # pwntools
+filetype==1.2.0

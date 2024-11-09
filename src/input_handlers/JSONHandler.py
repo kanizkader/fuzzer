@@ -1,4 +1,5 @@
 import json
+import pickle
 from .JSONHelper import JSONHelper
 
 class JSONHandler:
@@ -11,8 +12,11 @@ class JSONHandler:
             JSONHelper.simple_buffer_overflow,
         ]
         
-        # Apply individual fuzzing options
+        # Append original input
         fuzzed = []
+        fuzzed.append(json_input) 
+        
+        # Apply individual fuzzing options
         for fuzz in fuzzing_options:
             fuzzed.append(fuzz(json_input))
         
@@ -25,16 +29,18 @@ class JSONHandler:
         fmts = JSONHelper.get_format_str()
         for fmt in fmts:
             fuzzed.append(JSONHelper.put_format_str(json_input, fmt))
-
+            
+            
         # Apply byte flips
-        for i in range(40):
-            fuzzed.append(JSONHelper.byte_flip_string(json_input)) 
+        # for i in range(40):
+        #     fuzzed.append(JSONHelper.byte_flip_string(json_input)) 
 
         # Apply byte flips
         #for i in range(40):
         #    fuzzed.append(JSONHelper.byte_flip(json_input)) 
             
-        return fuzzed
+        fuzzed_bytes = [json.dumps(item).encode() if isinstance(item, dict) else item for item in fuzzed]    
+        return fuzzed_bytes
 
     @staticmethod
     def parse_input(content):
@@ -42,13 +48,15 @@ class JSONHandler:
         Parses JSON and returns list of possible input dictionaries for harness.
         """
         data = json.loads(content)
+
+        fuzzed = []
         if isinstance(data, list):
-            fuzzed = []
             for item in data:
                 fuzzed.extend(JSONHandler.mutate(item))
-            return fuzzed_inputs
         else:
-            return JSONHandler.mutate(data)
+            fuzzed.extend(JSONHandler.mutate(data))
+            
+        return fuzzed
     
     @staticmethod
     def send_json():
