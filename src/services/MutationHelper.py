@@ -21,12 +21,14 @@ def yield_bad_string():
     Yields a single string from a database of known bad strings.
     """
     db = Path('/src/input_handlers/bad-strings.txt')
-    store = []
-    
-    with open(db, 'r') as bad_strings:
-        for bad_string in bad_strings:
-            if not bad_string.startswith(('#', '\n')):
-                store.append(bad_string[:-1].encode())
+
+    try:
+        with open(db, 'rb') as bad_strings:
+            contents = bad_strings.read()
+            store = contents.split(b'\x0a')
+    except:
+        raise Exception("Unable to parse bad strings database.")
+        return
 
     i = 0
     while True:
