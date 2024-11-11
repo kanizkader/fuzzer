@@ -16,8 +16,9 @@ def main():
         binary_path = os.path.join(binary_folder, os.path.splitext(os.path.basename(filename))[0])
         inputs = harness.get_input(example_path)
 
-        if inputs is False:
-            return
+        if not inputs:
+            print("No valid fuzzer inputs found. Continuing.")
+            continue
         
         # If the input produces an error, write the input as a new line to output file
         for i in inputs:

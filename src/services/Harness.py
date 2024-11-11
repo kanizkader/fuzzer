@@ -73,7 +73,7 @@ class Harness:
             )
             
             print(f'Running {binary_path}...'.ljust(32), f'Input: {__class__.truncate(payload, 26)}')
-            stdout, stderr = process.communicate(payload, timeout=15)
+            stdout, stderr = process.communicate(payload, timeout=10)
             print(f'Return code: {process.returncode}'.ljust(32), f'Output: {__class__.truncate(stdout, 25)}\n')
 
             if process.returncode != 0:
@@ -82,9 +82,11 @@ class Harness:
             else:
                 success = True
         except subprocess.TimeoutExpired:
-            print('Error while running binary: timeout.')
+            crash_type = Harness.detect_crash('hang')
+            print(f'[*] Possible crash detected: {crash_type}', end='')
             process.kill()
             stdout, stderr = process.communicate()
+            return success, stdout, stderr, 'HANG', crash_type
         except Exception as e:
             stdout = None
             stderr = None
@@ -147,5 +149,7 @@ class Harness:
             return "Termination by SIGSEV (segmentation fault).\n"
         elif exit_code == 143:
             return "Termination by SIGTERM (default termination).\n"
+        elif exit_code == 'hang':
+            return "Program hang (time out).\n"
         
         return None
