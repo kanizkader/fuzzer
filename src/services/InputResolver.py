@@ -1,8 +1,8 @@
 import pathlib
 import json
 import csv
-# import io
-from input_handlers import CSVHandler, JSONHandler, PDFHandler
+import mimetypes
+from input_handlers import CSVHandler, JSONHandler, PDFHandler, PlaintextHandler
 
 class InputResolver:
     """
@@ -15,15 +15,14 @@ class InputResolver:
     def getInput(example_input_path):
         # Assume example_input is a file path
         file_path = pathlib.Path(example_input_path)
-        
-        if file_path.suffix.lower() != '.txt':
-            print("File must be a .txt file.")
-            return []
 
         with open(file_path, 'r', encoding='utf-8') as file:
             content = file.read()
 
         data_type = InputResolver._detect_data_type(content)
+        
+        if mimetypes.guess_type(file_path)[0] == 'text/plain':
+            return PlaintextHandler.PlaintextHandler.parse_input(content)
 
         if data_type == "csv":
             return CSVHandler.CsvHandler.parse_input(content)
