@@ -1,4 +1,5 @@
 import json
+from pwn import *
 from .JSONHelper import JSONHelper
 
 class JSONHandler:
@@ -28,6 +29,10 @@ class JSONHandler:
         fmts = JSONHelper.get_format_str()
         for fmt in fmts:
             fuzzed.append(JSONHelper.put_format_str(json_input, fmt))
+            
+        # Buffer Overflow 
+        for bo in range(0, 1000):
+            fuzzed.append(f"{cyclic(bo)}")
             
             
         # Apply byte flips

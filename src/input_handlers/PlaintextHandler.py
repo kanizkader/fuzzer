@@ -48,6 +48,7 @@ class PlaintextHandler:
         # for i in range(40):
         #     fuzzed.append(PlaintextHelper.byte_flip_string(plain_input)) 
         
+        # Buffer Overflow 
         for bo in range(0, 100):
             fuzzed.append(f"{cyclic(bo)}")
         
