@@ -1,6 +1,6 @@
 import os
 import json
-from services.Harness import Harness
+from services.Harness import *
 
 def main():
     harness = Harness()
@@ -19,6 +19,8 @@ def main():
         if not inputs:
             print("No valid fuzzer inputs found. Continuing.")
             continue
+
+        hax = []
         
         # If the input produces an error, write the input as a new line to output file
         for i in inputs:
@@ -29,7 +31,10 @@ def main():
 
             success, stdout, stderr, exit_code, crash_type = harness.run_binary(binary_path, i)
             if not success:
-                harness.write_hax(i, filename, stdout, stderr, exit_code, crash_type)
+                hack = Hack(i, stdout, stderr, exit_code, crash_type)
+                hax.append(hack)
+
+        harness.write_hax(hax, filename)
 
 
 if __name__ == '__main__':
