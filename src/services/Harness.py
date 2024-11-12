@@ -82,18 +82,22 @@ class Harness:
             
             print(f'Running {binary_path}...'.ljust(32), f'Input: {__class__.truncate(payload, 26)}')
             stdout, stderr = process.communicate(payload, timeout=10)
-            print(f'Return code: {process.returncode}'.ljust(32), f'Output: {__class__.truncate(stdout, 25)}\n')
+            print(f'Return code: {process.returncode}'.ljust(32), f'Output: {__class__.truncate(stdout, 25)}')
+            print(' ' * 32, f'Stderr: {stderr}\n')
 
             if process.returncode != 0:
                 crash_type = Harness.detect_crash(process.returncode)
                 print(f'[*] Possible crash detected: {crash_type}', end='')
-                if process.returncode == 134:
+                if process.returncode != 134 or b'stack smashing' in stderr:
+                    print(f"[*] Action: Writing bad input to output file via Harness\n")
+                else:
                     print(f'[*] Action: IGNORED\n')
             else:
                 success = True
         except subprocess.TimeoutExpired:
             crash_type = Harness.detect_crash('hang')
             print(f'[*] Possible crash detected: {crash_type}', end='')
+            print(f"[*] Action: Writing bad input to output file via Harness\n")
             process.kill()
             stdout, stderr = process.communicate()
             return success, stdout, stderr, 'HANG', crash_type
@@ -101,6 +105,7 @@ class Harness:
             stdout = None
             stderr = None
             print(f'Error while running binary: {e}')
+            return success, stdout, stderr, None, crash_type 
 
         return success, stdout, stderr, process.returncode, crash_type 
 
@@ -120,8 +125,7 @@ class Harness:
         try:
             with open(output_file, 'a') as f:
                 for hack in hax:
-                    if hack.exit_code != 134:
-                        print(f"[*] Action: Writing bad input to '{output_file}' via Harness\n")
+                    if hack.exit_code != 134 or b'stack smashing' in hack.stderr:
                         f.write("----------------------------------------------------------------\n")
                         f.write(f"Input:\n{hack.input}\n\n")
                         if hack.stdout:
