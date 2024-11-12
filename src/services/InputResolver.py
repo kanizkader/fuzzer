@@ -20,9 +20,6 @@ class InputResolver:
             content = file.read()
 
         data_type = InputResolver._detect_data_type(content)
-        
-        if mimetypes.guess_type(file_path)[0] == 'text/plain':
-            return PlaintextHandler.PlaintextHandler.parse_input(content)
 
         if data_type == "csv":
             return CSVHandler.CsvHandler.parse_input(content)
@@ -30,6 +27,8 @@ class InputResolver:
             return JSONHandler.JSONHandler.parse_input(content)
         elif data_type == "pdf":
             return PDFHandler.PdfHandler.parse_input(content)
+        #if mimetypes.guess_type(file_path)[0] == 'text/plain':
+            #return PlaintextHandler.PlaintextHandler.parse_input(content)
         else:
             print("I have no idea what file type this is lol")
             return []
