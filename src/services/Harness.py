@@ -4,6 +4,14 @@ import logging
 import pathlib
 from .InputResolver import InputResolver
 
+class Hack:
+    def __init__(self, input_bytes, stdout, stderr, exit_code, crash_type):
+        self.input = input_bytes
+        self.stdout = stdout
+        self.stderr = stderr
+        self.exit_code = exit_code
+        self.crash_type = crash_type
+
 class Harness:
     """
     Harness your power and do stuff if you really want to.
@@ -74,16 +82,22 @@ class Harness:
             
             print(f'Running {binary_path}...'.ljust(32), f'Input: {__class__.truncate(payload, 26)}')
             stdout, stderr = process.communicate(payload, timeout=10)
-            print(f'Return code: {process.returncode}'.ljust(32), f'Output: {__class__.truncate(stdout, 25)}\n')
+            print(f'Return code: {process.returncode}'.ljust(32), f'Output: {__class__.truncate(stdout, 25)}')
+            print(' ' * 32, f'Stderr: {stderr}\n')
 
             if process.returncode != 0:
                 crash_type = Harness.detect_crash(process.returncode)
                 print(f'[*] Possible crash detected: {crash_type}', end='')
+                if process.returncode != 134 or b'stack smashing' in stderr:
+                    print(f"[*] Action: Writing bad input to output file via Harness\n")
+                else:
+                    print(f'[*] Action: IGNORED\n')
             else:
                 success = True
         except subprocess.TimeoutExpired:
             crash_type = Harness.detect_crash('hang')
             print(f'[*] Possible crash detected: {crash_type}', end='')
+            print(f"[*] Action: Writing bad input to output file via Harness\n")
             process.kill()
             stdout, stderr = process.communicate()
             return success, stdout, stderr, 'HANG', crash_type
@@ -91,11 +105,12 @@ class Harness:
             stdout = None
             stderr = None
             print(f'Error while running binary: {e}')
+            return success, stdout, stderr, None, crash_type 
 
         return success, stdout, stderr, process.returncode, crash_type 
 
     @staticmethod
-    def write_hax(bad_input, filename, stdout=None, stderr=None, exit_code=None, crash_type=None):
+    def write_hax(hax, filename):
         """
         Writes output to a file and logs errors if anything goes wrong.
         """
@@ -109,21 +124,19 @@ class Harness:
         
         try:
             with open(output_file, 'a') as f:
-                if exit_code == 134:
-                    print(f'[*] Action: IGNORED\n')
-                else:
-                    print(f"[*] Action: Writing bad input to '{output_file}' via Harness\n")
-                    f.write("----------------------------------------------------------------\n")
-                    f.write(f"Input:\n{bad_input}\n\n")
-                    if stdout:
-                        f.write(f"Standard Output:\n{stdout}\n")
-                    if stderr:
-                        f.write(f"Standard Error:\n{stderr}\n")
-                    if exit_code is not None:
-                        f.write(f"Exit Code:\n{exit_code}\n\n")
-                    if crash_type is not None:
-                        f.write(f"Possible Crash Type:\n{crash_type}\n")
-                    f.write('\n')
+                for hack in hax:
+                    if hack.exit_code != 134 or b'stack smashing' in hack.stderr:
+                        f.write("----------------------------------------------------------------\n")
+                        f.write(f"Input:\n{hack.input}\n\n")
+                        if hack.stdout:
+                            f.write(f"Standard Output:\n{hack.stdout}\n")
+                        if hack.stderr:
+                            f.write(f"Standard Error:\n{hack.stderr}\n")
+                        if hack.exit_code is not None:
+                            f.write(f"Exit Code:\n{hack.exit_code}\n\n")
+                        if hack.crash_type is not None:
+                            f.write(f"Possible Crash Type:\n{hack.crash_type}\n")
+                        f.write('\n')
         except Exception as e:
             logging.error(f"An error occurred while writing to the file: {e}")
             print(f"An error occurred while writing to the file: {e}")   
