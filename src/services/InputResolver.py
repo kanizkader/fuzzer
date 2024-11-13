@@ -3,6 +3,7 @@ import json
 import csv
 import mimetypes
 from input_handlers import CSVHandler, JSONHandler, PDFHandler, PlaintextHandler
+import services.MutationHelper as mh
 
 class InputResolver:
     """
@@ -16,22 +17,27 @@ class InputResolver:
         # Assume example_input is a file path
         file_path = pathlib.Path(example_input_path)
 
-        with open(file_path, 'r', encoding='utf-8') as file:
+        with open(file_path, 'r') as file:
             content = file.read()
 
         data_type = InputResolver._detect_data_type(content)
 
+        general_mutations = [flip for flip in mh.flip(content.encode(), 200)]
+
+        # Return fuzzed inputs, both format specific and general mutations
         if data_type == "csv":
-            return CSVHandler.CsvHandler.parse_input(content)
+            format_specific = CSVHandler.CsvHandler.parse_input(content)  
         elif data_type == "json":
-            return JSONHandler.JSONHandler.parse_input(content)
+            format_specific = JSONHandler.JSONHandler.parse_input(content)
         elif data_type == "pdf":
-            return PDFHandler.PdfHandler.parse_input(content)
-        #if mimetypes.guess_type(file_path)[0] == 'text/plain':
-            #return PlaintextHandler.PlaintextHandler.parse_input(content)
+            format_specific = PDFHandler.PdfHandler.parse_input(content)
+        #elif data_type == "plaintext":
+            #format_specific = PlaintextHandler.PlaintextHandler.parse_input(content)
         else:
             print("I have no idea what file type this is lol")
-            return []
+            format_specific = []
+
+        return format_specific + general_mutations
 
     @staticmethod
     def _detect_data_type(content):

@@ -88,10 +88,6 @@ class CsvHandler:
             inputs.append(schema.header +
                           __class__.format_row(b'abc' * num, schema.num_cols) * schema.num_rows)
 
-        # Add a few bit flips
-        for flip in mh.flip(csvfile.encode(), 50):
-            inputs.append(flip)
-
         # Then mutate based on detected schema
         return __class__.mutate(inputs, schema, 200)
 

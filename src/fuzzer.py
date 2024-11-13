@@ -31,10 +31,12 @@ def main():
 
             success, stdout, stderr, exit_code, crash_type = harness.run_binary(binary_path, i)
             if not success:
-                hack = Hack(i, stdout, stderr, exit_code, crash_type)
-                hax.append(hack)
+                # Check if non-suspicious SIGABRT
+                if exit_code != 134 or b'stack smashing' in stderr:
+                    hack = Hack(i, stdout, stderr, exit_code, crash_type)
+                    hax.append(hack)
 
-        harness.write_hax(hax, filename)
+        harness.write_hax(len(inputs), hax, filename)
 
 
 if __name__ == '__main__':
