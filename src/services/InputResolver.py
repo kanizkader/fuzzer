@@ -29,11 +29,9 @@ class InputResolver:
             return JSONHandler.JSONHandler.parse_input(content)
             #return []
         elif data_type == "pdf":
-            #return PDFHandler.PdfHandler.parse_input(content)
-            return []
-        elif 'text' in example_input_path:
-            return PlaintextHandler.PlaintextHandler.parse_input(content)
-            #return []
+            return PDFHandler.PdfHandler.parse_input(content)
+        #if mimetypes.guess_type(file_path)[0] == 'text/plain':
+            #return PlaintextHandler.PlaintextHandler.parse_input(content)
         elif 'xml' in example_input_path:
             return XMLHandler.XMLHandler.parse_input(content)
         else:
