@@ -2,7 +2,8 @@ import pathlib
 import json
 import csv
 import mimetypes
-from input_handlers import CSVHandler, JSONHandler, PDFHandler, PlaintextHandler
+# import io
+from input_handlers import CSVHandler, JSONHandler, PDFHandler, PlaintextHandler, XMLHandler
 
 class InputResolver:
     """
@@ -23,12 +24,18 @@ class InputResolver:
 
         if data_type == "csv":
             return CSVHandler.CsvHandler.parse_input(content)
+            #return []
         elif data_type == "json":
             return JSONHandler.JSONHandler.parse_input(content)
+            #return []
         elif data_type == "pdf":
-            return PDFHandler.PdfHandler.parse_input(content)
-        #if mimetypes.guess_type(file_path)[0] == 'text/plain':
-            #return PlaintextHandler.PlaintextHandler.parse_input(content)
+            #return PDFHandler.PdfHandler.parse_input(content)
+            return []
+        elif 'text' in example_input_path:
+            return PlaintextHandler.PlaintextHandler.parse_input(content)
+            #return []
+        elif 'xml' in example_input_path:
+            return XMLHandler.XMLHandler.parse_input(content)
         else:
             print("I have no idea what file type this is lol")
             return []
