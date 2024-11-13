@@ -69,9 +69,8 @@ class CsvHandler:
     def fuzz(csvfile, schema):
         """
         Makes list of fuzzer inputs
-        Starting with various empty strings
         """
-        inputs = [b'\x00', b'\n', b'', b'\r', b'\r\n']
+        inputs = []
         # Add empty table
         inputs.append(schema.header + __class__.format_row(b'', schema.num_cols))
 

@@ -14,19 +14,12 @@ class Hack:
 
 class Harness:
     """
-    Harness your power and do stuff if you really want to.
-    This class is entirely optional, including the entire services module.
-    It is only there if we end up needing to do something more complex than
-    just executing and calling everything from the fuzzer.py file. It might help
-    clean things up a bit later down the line.
+    The harness runs each binary, communicates with the process, and records any 
+    output and/or errors returned.
     """
 
     def __init__(self):
         pass
-
-    @staticmethod
-    def send_hArNesS():
-        return "hArNesS"
 
     @staticmethod
     def truncate(s, limit):

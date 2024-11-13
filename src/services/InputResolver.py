@@ -22,7 +22,10 @@ class InputResolver:
 
         data_type = InputResolver._detect_data_type(content)
 
+        # Bit flips & byte flips
         general_mutations = [flip for flip in mh.flip(content.encode(), 200)]
+        # Various empty strings
+        general_mutations += [b'\x00', b'\n', b'', b'\r', b'\r\n']
 
         # Return fuzzed inputs, both format specific and general mutations
         if data_type == "csv":
