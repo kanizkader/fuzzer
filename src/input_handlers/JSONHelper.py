@@ -74,23 +74,3 @@ class JSONHelper:
             new_input[key] = bytearr.decode('utf-8')
         
         return new_input
-    
-    def byte_flip(json_input):
-        """
-        Flips random bytes for each value in given JSON input
-        Returns result as raw bytes in JSON
-        """
-        random.seed()
-        new_input = json_input.copy()
-
-        for key, value in new_input.items():
-            bytearr = bytearray(str(value).encode('utf-8'))
-
-            for i in range(20): # Can change the number of flipped bytes
-                byte = random.randrange(256)
-                pos = random.randrange(len(bytearr))
-                bytearr[pos] = byte ^ 1
-            
-            new_input[key] = bytes(bytearr)
-        
-        return new_input
