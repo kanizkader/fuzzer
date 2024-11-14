@@ -2,8 +2,9 @@ import pathlib
 import json
 import csv
 import mimetypes
-from input_handlers import CSVHandler, JSONHandler, PDFHandler, PlaintextHandler, XMLHandler
+from input_handlers import CSVHandler, JSONHandler, PDFHandler, PlaintextHandler, XMLHandler, JPEGHandler
 import services.MutationHelper as mh
+from PIL import Image
 
 class InputResolver:
     """
@@ -17,32 +18,54 @@ class InputResolver:
         # Assume example_input is a file path
         file_path = pathlib.Path(example_input_path)
 
-        with open(file_path, 'r') as file:
-            content = file.read()
+        data_type = None
+        if 'jpg' not in example_input_path:
+            with open(file_path, 'r') as file:
+                content = file.read()
+                print('read content')
+                data_type = InputResolver._detect_data_type(content)
+        else:
+            print('not read')
+            image = Image.open(example_input_path)
+            print(image)
 
-        data_type = InputResolver._detect_data_type(content)
-        
         # Bit flips & byte flips
-        general_mutations = [flip for flip in mh.flip(content.encode(), 200)]
+        #general_mutations = [flip for flip in mh.flip(content.encode(), 200)]
         # Various empty strings
-        general_mutations += [b'\x00', b'\n', b'', b'\r', b'\r\n']
+        #general_mutations += [b'\x00', b'\n', b'', b'\r', b'\r\n']
         
         # Return fuzzed inputs, both format specific and general mutations
         if data_type == "csv":
-            format_specific = CSVHandler.CsvHandler.parse_input(content)  
+            #format_specific = CSVHandler.CsvHandler.parse_input(content)  
+            format_specific = []
         elif data_type == "json":
-            format_specific = JSONHandler.JSONHandler.parse_input(content)
+            #format_specific = JSONHandler.JSONHandler.parse_input(content)
+            format_specific = []
         elif data_type == "pdf":
-            format_specific = PDFHandler.PdfHandler.parse_input(content)
+            #format_specific = PDFHandler.PdfHandler.parse_input(content)
+            format_specific = []
         elif data_type == None and mimetypes.guess_type(file_path)[0] == 'text/plain':
-            format_specific = PlaintextHandler.PlaintextHandler.parse_input(content)
+            #format_specific = PlaintextHandler.PlaintextHandler.parse_input(content)
+            format_specific = []
         elif data_type == None and mimetypes.guess_type(file_path)[0] == 'application/xml':
-            format_specific = XMLHandler.XMLHandler.parse_input(content)
+            #format_specific = XMLHandler.XMLHandler.parse_input(content)
+            format_specific = []
+        elif 'jpg' in example_input_path:
+            image = Image.open(example_input_path)
+            if image == None:
+                print('nothing')
+            else:
+                print('anoth jpg')
+            print(f"Image format: {image.format}")
+            print(f"Image size: {image.size}")
+            print(f"Image mode: {image.mode}")
+            format_specific = JPEGHandler.JPEGHandler.parse_input(image)
         else:
             print("I have no idea what file type this is lol")
             format_specific = []
 
-        return format_specific + general_mutations
+        #return format_specific + general_mutations
+        return format_specific
 
     @staticmethod
     def _detect_data_type(content):
