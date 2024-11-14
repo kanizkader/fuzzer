@@ -31,16 +31,12 @@ class JSONHandler:
             fuzzed.append(JSONHelper.put_format_str(json_input, fmt))
             
         # Buffer Overflow 
-        for bo in range(0, 1000):
+        for bo in range(0, 8000, 1000):
             fuzzed.append(f"{cyclic(bo)}")
 
         # Apply ASCII byte flips
         for i in range(40):
             fuzzed.append(JSONHelper.byte_flip_string(json_input)) 
-
-        # Apply byte flips
-        #for i in range(40):
-        #    fuzzed.append(JSONHelper.byte_flip(json_input)) 
             
         fuzzed_bytes = [json.dumps(item).encode() if isinstance(item, dict) else item.encode() for item in fuzzed]    
         return fuzzed_bytes
