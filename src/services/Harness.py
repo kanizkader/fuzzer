@@ -14,19 +14,12 @@ class Hack:
 
 class Harness:
     """
-    Harness your power and do stuff if you really want to.
-    This class is entirely optional, including the entire services module.
-    It is only there if we end up needing to do something more complex than
-    just executing and calling everything from the fuzzer.py file. It might help
-    clean things up a bit later down the line.
+    The harness runs each binary, communicates with the process, and records any 
+    output and/or errors returned.
     """
 
     def __init__(self):
         pass
-
-    @staticmethod
-    def send_hArNesS():
-        return "hArNesS"
 
     @staticmethod
     def truncate(s, limit):
@@ -104,13 +97,13 @@ class Harness:
         except Exception as e:
             stdout = None
             stderr = None
-            print(f'Error while running binary: {e}')
+            print(f'Error while running {binary_path}: {e}')
             return success, stdout, stderr, None, crash_type 
 
         return success, stdout, stderr, process.returncode, crash_type 
 
     @staticmethod
-    def write_hax(hax, filename):
+    def write_hax(num_inputs, hax, filename):
         """
         Writes output to a file and logs errors if anything goes wrong.
         """
@@ -124,19 +117,21 @@ class Harness:
         
         try:
             with open(output_file, 'a') as f:
+                f.write(f"Total number of inputs tried:     {num_inputs}\n")
+                f.write(f"Total number of crashes detected: {len(hax)}\n")
+
                 for hack in hax:
-                    if hack.exit_code != 134 or b'stack smashing' in hack.stderr:
-                        f.write("----------------------------------------------------------------\n")
-                        f.write(f"Input:\n{hack.input}\n\n")
-                        if hack.stdout:
-                            f.write(f"Standard Output:\n{hack.stdout}\n")
-                        if hack.stderr:
-                            f.write(f"Standard Error:\n{hack.stderr}\n")
-                        if hack.exit_code is not None:
-                            f.write(f"Exit Code:\n{hack.exit_code}\n\n")
-                        if hack.crash_type is not None:
-                            f.write(f"Possible Crash Type:\n{hack.crash_type}\n")
-                        f.write('\n')
+                    f.write("----------------------------------------------------------------\n")
+                    f.write(f"Input:\n{hack.input}\n\n")
+                    if hack.stdout:
+                        f.write(f"Standard Output:\n{hack.stdout}\n")
+                    if hack.stderr:
+                        f.write(f"Standard Error:\n{hack.stderr}\n")
+                    if hack.exit_code is not None:
+                        f.write(f"Exit Code:\n{hack.exit_code}\n\n")
+                    if hack.crash_type is not None:
+                        f.write(f"Possible Crash Type:\n{hack.crash_type}\n")
+                    f.write('\n')
         except Exception as e:
             logging.error(f"An error occurred while writing to the file: {e}")
             print(f"An error occurred while writing to the file: {e}")   

@@ -8,13 +8,16 @@ def flip(original_input, max_variants):
     """
     input_len = len(original_input)
     max_flips = input_len // 16
-
-    for _ in range(max_variants):
-        var = bytearray(original_input)
-        for f in range(max_flips):
-            i = random.randrange(input_len)
-            var[i] = original_input[i] ^ random.randrange(255)
-        yield var
+    try:
+        for _ in range(max_variants):
+            var = bytearray(original_input)
+            for f in range(max_flips):
+                i = random.randrange(input_len)
+                var[i] = original_input[i] ^ random.randrange(255)
+            yield bytes(var)
+    except Exception as e:
+        print(f"Error while applying bit flips: {e}")
+        yield b''
 
 def yield_bad_string():
     """

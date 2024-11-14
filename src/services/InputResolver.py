@@ -2,8 +2,8 @@ import pathlib
 import json
 import csv
 import mimetypes
-# import io
 from input_handlers import CSVHandler, JSONHandler, PDFHandler, PlaintextHandler, XMLHandler
+import services.MutationHelper as mh
 
 class InputResolver:
     """
@@ -17,12 +17,19 @@ class InputResolver:
         # Assume example_input is a file path
         file_path = pathlib.Path(example_input_path)
 
-        with open(file_path, 'r', encoding='utf-8') as file:
+        with open(file_path, 'r') as file:
             content = file.read()
 
         data_type = InputResolver._detect_data_type(content)
-
+        
+        # Bit flips & byte flips
+        general_mutations = [flip for flip in mh.flip(content.encode(), 200)]
+        # Various empty strings
+        general_mutations += [b'\x00', b'\n', b'', b'\r', b'\r\n']
+        
+        # Return fuzzed inputs, both format specific and general mutations
         if data_type == "csv":
+<<<<<<< HEAD
             return CSVHandler.CsvHandler.parse_input(content)
             #return []
         elif data_type == "json":
@@ -34,9 +41,20 @@ class InputResolver:
             #return PlaintextHandler.PlaintextHandler.parse_input(content)
         elif 'xml' in example_input_path:
             return XMLHandler.XMLHandler.parse_input(content)
+=======
+            format_specific = CSVHandler.CsvHandler.parse_input(content)  
+        elif data_type == "json":
+            format_specific = JSONHandler.JSONHandler.parse_input(content)
+        elif data_type == "pdf":
+            format_specific = PDFHandler.PdfHandler.parse_input(content)
+        elif data_type == None and mimetypes.guess_type(file_path)[0] == 'text/plain':
+            format_specific = PlaintextHandler.PlaintextHandler.parse_input(content)
+>>>>>>> 3b19e8d3ee81538c20b2c16bc78f713ac2c821df
         else:
             print("I have no idea what file type this is lol")
-            return []
+            format_specific = []
+
+        return format_specific + general_mutations
 
     @staticmethod
     def _detect_data_type(content):
@@ -57,4 +75,4 @@ class InputResolver:
             return "pdf"
 
         # If none of the above, return unknown
-        return "idfk"
+        return None

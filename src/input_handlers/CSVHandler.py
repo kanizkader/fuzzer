@@ -69,9 +69,8 @@ class CsvHandler:
     def fuzz(csvfile, schema):
         """
         Makes list of fuzzer inputs
-        Starting with various empty strings
         """
-        inputs = [b'\x00', b'\n', b'', b'\r', b'\r\n']
+        inputs = []
         # Add empty table
         inputs.append(schema.header + __class__.format_row(b'', schema.num_cols))
 
@@ -87,10 +86,6 @@ class CsvHandler:
             # Long cell contents
             inputs.append(schema.header +
                           __class__.format_row(b'abc' * num, schema.num_cols) * schema.num_rows)
-
-        # Add a few bit flips
-        for flip in mh.flip(csvfile.encode(), 50):
-            inputs.append(flip)
 
         # Then mutate based on detected schema
         return __class__.mutate(inputs, schema, 200)
