@@ -10,5 +10,5 @@ int main(int argc, char *argv[]) {
     fread(buffer, sizeof(char), 512, stdin); // vuln in fread
 
     printf("Printing contents:\n%s\n", buffer);
-    exit(0);
+    return 0;
 }
