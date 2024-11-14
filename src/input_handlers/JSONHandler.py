@@ -10,6 +10,13 @@ class JSONHandler:
         """
         fuzzing_options = [
             JSONHelper.simple_buffer_overflow,
+            JSONHelper.bigger_buffer_overflow,
+            JSONHelper.biggest_int,
+            JSONHelper.int_overflow,
+            JSONHelper.int_underflow,
+            JSONHelper.long_keys,
+            JSONHelper.invalid_types,
+            JSONHelper.malformed_json,
         ]
         
         # Append original input
