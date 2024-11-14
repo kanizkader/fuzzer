@@ -21,12 +21,12 @@ class InputResolver:
             content = file.read()
 
         data_type = InputResolver._detect_data_type(content)
-
+        
         # Bit flips & byte flips
         general_mutations = [flip for flip in mh.flip(content.encode(), 200)]
         # Various empty strings
         general_mutations += [b'\x00', b'\n', b'', b'\r', b'\r\n']
-
+        
         # Return fuzzed inputs, both format specific and general mutations
         if data_type == "csv":
             format_specific = CSVHandler.CsvHandler.parse_input(content)  
@@ -34,8 +34,8 @@ class InputResolver:
             format_specific = JSONHandler.JSONHandler.parse_input(content)
         elif data_type == "pdf":
             format_specific = PDFHandler.PdfHandler.parse_input(content)
-        #elif data_type == "plaintext":
-            #format_specific = PlaintextHandler.PlaintextHandler.parse_input(content)
+        elif data_type == None and mimetypes.guess_type(file_path)[0] == 'text/plain':
+            format_specific = PlaintextHandler.PlaintextHandler.parse_input(content)
         else:
             print("I have no idea what file type this is lol")
             format_specific = []
@@ -61,4 +61,4 @@ class InputResolver:
             return "pdf"
 
         # If none of the above, return unknown
-        return "idfk"
+        return None
