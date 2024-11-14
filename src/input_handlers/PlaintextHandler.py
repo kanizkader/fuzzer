@@ -49,7 +49,7 @@ class PlaintextHandler:
         #     fuzzed.append(PlaintextHelper.byte_flip_string(plain_input)) 
         
         # Buffer Overflow 
-        for bo in range(0, 100):
+        for bo in range(0, 8000, 1000):
             fuzzed.append(f"{cyclic(bo)}")
         
         fuzzed_bytes = [PlaintextHandler.string_to_byte(item) for item in fuzzed]
@@ -60,5 +60,4 @@ class PlaintextHandler:
         """
         Parses plain text and returns a list of possible input strings for harness.
         """
-        fuzzed = PlaintextHandler.mutate(content)
-        return fuzzed
+        return PlaintextHandler.mutate(content)
