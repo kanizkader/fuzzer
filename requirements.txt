@@ -1,1 +1,2 @@
 pwntools
+pyelftools==0.29

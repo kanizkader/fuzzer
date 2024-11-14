@@ -24,17 +24,6 @@ class KeywordMutator:
         return filtered_strings
 
     @staticmethod
-    def disassemble_binary(binary_path):
-        """
-        Extracts strings from the binary using objdump.
-        """
-        command = f"objdump -d {binary_path}"
-        result = subprocess.run(
-            command, shell=True, capture_output=True, text=True
-        )
-        return result.stdout
-
-    @staticmethod
     def filter_vulnerable_functions(strings):
         """
         Filters out vulnerable stdlib functions from the binary.

@@ -29,19 +29,6 @@ class InputResolver:
         
         # Return fuzzed inputs, both format specific and general mutations
         if data_type == "csv":
-<<<<<<< HEAD
-            return CSVHandler.CsvHandler.parse_input(content)
-            #return []
-        elif data_type == "json":
-            return JSONHandler.JSONHandler.parse_input(content)
-            #return []
-        elif data_type == "pdf":
-            return PDFHandler.PdfHandler.parse_input(content)
-        #if mimetypes.guess_type(file_path)[0] == 'text/plain':
-            #return PlaintextHandler.PlaintextHandler.parse_input(content)
-        elif 'xml' in example_input_path:
-            return XMLHandler.XMLHandler.parse_input(content)
-=======
             format_specific = CSVHandler.CsvHandler.parse_input(content)  
         elif data_type == "json":
             format_specific = JSONHandler.JSONHandler.parse_input(content)
@@ -49,7 +36,6 @@ class InputResolver:
             format_specific = PDFHandler.PdfHandler.parse_input(content)
         elif data_type == None and mimetypes.guess_type(file_path)[0] == 'text/plain':
             format_specific = PlaintextHandler.PlaintextHandler.parse_input(content)
->>>>>>> 3b19e8d3ee81538c20b2c16bc78f713ac2c821df
         else:
             print("I have no idea what file type this is lol")
             format_specific = []
