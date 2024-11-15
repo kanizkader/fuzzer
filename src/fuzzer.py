@@ -6,7 +6,7 @@ def main():
     harness = Harness()
 
     example_folder = './example_inputs'
-    binary_folder = './executables'
+    binary_folder = './binaries'
     for filename in os.listdir(example_folder):
         print('Opened: ', filename)
         if not harness.check_binary_exists(filename):

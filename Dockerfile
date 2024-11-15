@@ -12,15 +12,8 @@ RUN apt install -y libffi-dev && apt install -y build-essential
 # Copy entire directory to container
 COPY . .
 
-# Move read only binaries to an executable folder in container
-RUN mkdir ./executables
-RUN mv binaries/* ./executables
-
 # Install python dependencies
 RUN pip install -r /requirements.txt
-
-# Make all binaries in the executables directory executable
-RUN chmod +x /executables/*
 
 # Set shell variables
 ENV TERM=xterm
