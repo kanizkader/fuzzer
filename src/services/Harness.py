@@ -104,11 +104,11 @@ class Harness:
         return success, stdout, stderr, process.returncode, crash_type 
 
     @staticmethod
-    def write_hax(num_inputs, hax, filename):
+    def write_hax(num_inputs, hax, filename, execution_time):
         """
         Writes output to a file and logs errors if anything goes wrong.
         """
-        sp = SummaryPrinter(num_inputs, hax, filename, '0')  
+        sp = SummaryPrinter(num_inputs, hax, filename, execution_time)  
         sp.write_to_file() 
             
     @staticmethod
