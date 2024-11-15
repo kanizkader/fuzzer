@@ -3,6 +3,7 @@ import os
 import logging
 import pathlib
 from .InputResolver import InputResolver
+from services.SummaryPrinter import SummaryPrinter
 
 class Hack:
     def __init__(self, input_bytes, stdout, stderr, exit_code, crash_type):
@@ -76,7 +77,7 @@ class Harness:
             print(f'Running {binary_path}...'.ljust(32), f'Input: {__class__.truncate(payload, 26)}')
             stdout, stderr = process.communicate(payload, timeout=10)
             print(f'Return code: {process.returncode}'.ljust(32), f'Output: {__class__.truncate(stdout, 25)}')
-            print(' ' * 32, f'Stderr: {stderr}\n')
+            print(' ' * 32, f'Stderr: {__class__.truncate(stderr, 25)}\n')
 
             if process.returncode != 0:
                 crash_type = Harness.detect_crash(process.returncode)
@@ -103,38 +104,12 @@ class Harness:
         return success, stdout, stderr, process.returncode, crash_type 
 
     @staticmethod
-    def write_hax(num_inputs, hax, filename):
+    def write_hax(num_inputs, hax, filename, execution_time):
         """
         Writes output to a file and logs errors if anything goes wrong.
         """
-
-        # Create output file
-        output_folder = 'fuzzer_output'
-        if not os.path.exists(output_folder):
-            print(f"Folder '{output_folder}' does not exist.")
-            return
-        output_file = os.path.join(output_folder, 'bad_' + os.path.splitext(os.path.basename(filename))[0] + '.txt')
-        
-        try:
-            with open(output_file, 'a') as f:
-                f.write(f"Total number of inputs tried:     {num_inputs}\n")
-                f.write(f"Total number of crashes detected: {len(hax)}\n")
-
-                for hack in hax:
-                    f.write("----------------------------------------------------------------\n")
-                    f.write(f"Input:\n{hack.input}\n\n")
-                    if hack.stdout:
-                        f.write(f"Standard Output:\n{hack.stdout}\n")
-                    if hack.stderr:
-                        f.write(f"Standard Error:\n{hack.stderr}\n")
-                    if hack.exit_code is not None:
-                        f.write(f"Exit Code:\n{hack.exit_code}\n\n")
-                    if hack.crash_type is not None:
-                        f.write(f"Possible Crash Type:\n{hack.crash_type}\n")
-                    f.write('\n')
-        except Exception as e:
-            logging.error(f"An error occurred while writing to the file: {e}")
-            print(f"An error occurred while writing to the file: {e}")   
+        sp = SummaryPrinter(num_inputs, hax, filename, execution_time)  
+        sp.write_to_file() 
             
     @staticmethod
     def detect_crash(exit_code):

@@ -5,12 +5,9 @@ from .PlaintextHelper import PlaintextHelper
 class PlaintextHandler:
     @staticmethod
     def bad_strings():
-        bad_string_options = []
         with open('./src/input_handlers/bad-strings.txt', 'r') as bad_strings:
-            for bad_string in bad_strings:
-                if not bad_string.startswith(('#', '\n')):
-                    bad_string_options.append(bad_string.strip('\n'))
-                    
+            content = bad_strings.read()
+            bad_string_options = content.split("\n")                   
         return bad_string_options
 
     @staticmethod
@@ -23,12 +20,18 @@ class PlaintextHandler:
         Apply fuzzing to plain text input.
         """
         fuzzing_options = [
-            PlaintextHelper.simple_buffer_overflow,  
+            PlaintextHelper.simple_buffer_overflow  
         ]
         
         # Append original input
         fuzzed = []
         fuzzed.append(plain_input) 
+
+        try:
+            if plain_input[-1] == "\n":
+                plain_input = plain_input[:-1]
+        except:
+            pass
         
         # Apply individual fuzzing options
         for fuzz in fuzzing_options:
@@ -49,7 +52,7 @@ class PlaintextHandler:
         #     fuzzed.append(PlaintextHelper.byte_flip_string(plain_input)) 
         
         # Buffer Overflow 
-        for bo in range(0, 100):
+        for bo in range(0, 8000, 1000):
             fuzzed.append(f"{cyclic(bo)}")
         
         fuzzed_bytes = [PlaintextHandler.string_to_byte(item) for item in fuzzed]
@@ -60,5 +63,4 @@ class PlaintextHandler:
         """
         Parses plain text and returns a list of possible input strings for harness.
         """
-        fuzzed = PlaintextHandler.mutate(content)
-        return fuzzed
+        return PlaintextHandler.mutate(content)

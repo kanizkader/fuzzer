@@ -44,7 +44,7 @@ class InputResolver:
         elif data_type == None and mimetypes.guess_type(file_path)[0] == 'text/plain':
             format_specific = PlaintextHandler.PlaintextHandler.parse_input(content)
         else:
-            print("I have no idea what file type this is lol")
+            print("Unknown data type.")
             format_specific = []
 
         return format_specific + general_mutations

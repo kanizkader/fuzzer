@@ -7,8 +7,9 @@
 int main(int argc, char *argv[]) {
     char buffer[BUFFER_SIZE];
 
-    fread(buffer, sizeof(char), 512, stdin); // vuln in fread
+    fread(buffer, sizeof(char), BUFFER_SIZE - 1, stdin);
 
-    printf("Printing contents:\n%s\n", buffer);
-    exit(0);
+    printf("Printing contents:\n");
+    printf(buffer); // Format String Vuln
+    return 0;
 }

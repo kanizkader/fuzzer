@@ -1,12 +1,13 @@
 import os
 import json
+import time
 from services.Harness import *
 
 def main():
     harness = Harness()
 
     example_folder = './example_inputs'
-    binary_folder = './executables'
+    binary_folder = './binaries'
     for filename in os.listdir(example_folder):
         print('Opened: ', filename)
         if not harness.check_binary_exists(filename):
@@ -21,6 +22,7 @@ def main():
             continue
 
         hax = []
+        start_time = time.time()
         
         # If the input produces an error, write the input as a new line to output file
         for i in inputs:
@@ -36,7 +38,13 @@ def main():
                     hack = Hack(i, stdout, stderr, exit_code, crash_type)
                     hax.append(hack)
 
-        harness.write_hax(len(inputs), hax, filename)
+        end_time = time.time()
+        try:
+            elapsed = end_time - start_time
+        except:
+            elapsed = 0
+
+        harness.write_hax(len(inputs), hax, filename, elapsed)
 
 
 if __name__ == '__main__':
