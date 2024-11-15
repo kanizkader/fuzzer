@@ -2,10 +2,11 @@ import pathlib
 import json
 import csv
 import mimetypes
-from input_handlers import CSVHandler, JSONHandler, PDFHandler, PlaintextHandler, XMLHandler, ELFHandler
+from input_handlers import CSVHandler, JSONHandler, PDFHandler, PlaintextHandler, XMLHandler, ELFHandler, JPEGHandler
 from elftools.elf.elffile import ELFFile
 import services.MutationHelper as mh
 import xml.etree.ElementTree as ET
+from PIL import Image
 
 class InputResolver:
     """
@@ -22,7 +23,7 @@ class InputResolver:
         with open(file_path, 'r') as file:
             content = file.read()
 
-        data_type = InputResolver._detect_data_type(content)
+        data_type = InputResolver._detect_data_type(content, file_path)
         
         # Bit flips & byte flips
         general_mutations = [flip for flip in mh.flip(content.encode(), 200)]
@@ -40,6 +41,8 @@ class InputResolver:
             format_specific = ELFHandler.ELFHandler.parse_input(content)
         elif data_type == "xml":
             format_specific = XMLHandler.XMLHandler.parse_input(content)
+        elif data_type == "jpg":
+            format_specific = JPEGHandler.JPEGHandler.parse_input(content)
         elif data_type == None and mimetypes.guess_type(file_path)[0] == 'text/plain':
             format_specific = PlaintextHandler.PlaintextHandler.parse_input(content)
         else:
@@ -49,7 +52,7 @@ class InputResolver:
         return format_specific + general_mutations
 
     @staticmethod
-    def _detect_data_type(content):
+    def _detect_data_type(content, file_path):
         try:
             json.loads(content)
             return "json"
@@ -72,6 +75,13 @@ class InputResolver:
             ET.parse(file_path)
             return "xml"
         except ET.ParseError:
+            pass
+
+        try:
+            with Image.open(file_path) as img:
+                if img.format == 'JPEG':
+                    return "jpg"
+        except Exception as e:
             pass
 
         # Check for PDF (not yet ready for the real world)
