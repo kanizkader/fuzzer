@@ -1,13 +1,11 @@
 admin
 root
-printf
 password
 passwd
 shadow
 config
 conf
 database
-db
 mysql
 postgres
 backup
@@ -84,7 +82,6 @@ property
 attribute
 field
 column
-table
 index
 key
 value
@@ -112,3 +109,4 @@ role
 group
 account
 profile
+gets

@@ -76,12 +76,14 @@ class KeywordMutator:
         strings = KeywordMutator.extract_strings(binary_path)
         vulnerable_keywords = KeywordMutator.filter_vulnerable_keywords(strings)
         files = KeywordMutator.filter_files(strings)
-        
-        print("\nInteresting keywords:")
-        for keyword in vulnerable_keywords:
-            print(keyword)
-        print("\nFiles detected:")
-        for file in files:
-            print(file)
-            
+
         return strings, vulnerable_keywords, files
+
+if __name__ == "__main__":
+    stuff, keywords, files = KeywordMutator.analyze_binary("binaries/csv1")
+    print("Interesting keywords:")
+    for keyword in keywords:
+        print(keyword)
+    print("\nFiles detected:")
+    for file in files:
+        print(file)
