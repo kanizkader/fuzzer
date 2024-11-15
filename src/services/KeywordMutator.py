@@ -24,29 +24,28 @@ class KeywordMutator:
         return filtered_strings
 
     @staticmethod
-    def filter_vulnerable_functions(strings):
+    def filter_vulnerable_keywords(strings):
         """
-        Filters out vulnerable stdlib functions from the binary.
+        Filters strings that contain common keywords from a predefined list.
         """
-        vulnerable_functions = [
-            "strcpy",
-            "strcat",
-            "sprintf",
-            "scanf",
-            "fgets",
-            "gets",
-            "printf",
-            "fprintf",
-            "sprintf",
-            "snprintf",
-            "vsprintf",
-            "vsnprintf",
-        ]
-        return [
-            s
-            for s in strings
-            if any(func in s for func in vulnerable_functions)
-        ]
+        try:
+            keywords_path = "src/input_handlers/common-keywords.txt"
+            with open(keywords_path, "r") as f:
+                keywords = [line.strip() for line in f.readlines() if line.strip()]
+                
+            filtered = []
+            for s in strings:
+                for keyword in keywords:
+                    if keyword.lower() in s.lower():
+                        filtered.append(s)
+                        break
+            
+            return filtered
+            
+        except FileNotFoundError:
+            return []
+        except Exception:
+            return []
 
     @staticmethod
     def filter_files(strings):
@@ -68,17 +67,25 @@ class KeywordMutator:
 
         return filtered_strings
 
+    @staticmethod
+    def analyze_binary(binary_path):
+        """
+        Analyzes a binary file to extract strings, vulnerable keywords and files.
+        Returns a tuple of (strings, vulnerable_keywords, files).
+        """
+        strings = KeywordMutator.extract_strings(binary_path)
+        vulnerable_keywords = KeywordMutator.filter_vulnerable_keywords(strings)
+        files = KeywordMutator.filter_files(strings)
+        
+        print("\nInteresting keywords:")
+        for keyword in vulnerable_keywords:
+            print(keyword)
+        print("\nFiles detected:")
+        for file in files:
+            print(file)
+            
+        return strings, vulnerable_keywords, files
+
 
 if __name__ == "__main__":
-    strings = KeywordMutator.extract_strings("binaries/binaries/csv1")
-    for string in strings:
-        print(string)
-
-    vulnerable_functions = KeywordMutator.filter_vulnerable_functions(strings)
-    files = KeywordMutator.filter_files(strings)
-    print("\nVulnerable functions:")
-    for func in vulnerable_functions:
-        print(func)
-    print("\nFiles:")
-    for file in files:
-        print(file)
+    KeywordMutator.analyze_binary("binaries/csv1")
