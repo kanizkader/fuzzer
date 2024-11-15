@@ -16,13 +16,16 @@ class SummaryPrinter:
         self.hax = hax
         self.filename = filename
         self.exec_time = exec_time
-        self.crash_types = {}
+        self.crash_types = {"Unrecognised": 0}
 
-        for hack in self.hax:
-            if self.crash_types.get(keys[hack.exit_code]):
-                self.crash_types[keys[hack.exit_code]] += 1
-            else:
-                self.crash_types[keys[hack.exit_code]] = 1
+        try:
+            for hack in self.hax:
+                if self.crash_types.get(keys[hack.exit_code]):
+                    self.crash_types[keys[hack.exit_code]] += 1
+                else:
+                    self.crash_types[keys[hack.exit_code]] = 1
+        except KeyError:
+            self.crash_types["Unrecognised"] += 1
     
     def write_to_file(self):
         # Create output file
@@ -41,7 +44,7 @@ class SummaryPrinter:
                 f.write("___ Timing ".ljust(38, "_") + " ___ Inputs & crashes ".ljust(38, "_") + "\n")
                 f.write(empty_line)
                 f.write(f"| Total runtime: {self.exec_time:.2f} secs".ljust(38, " ") + f"| Total inputs tried: {self.num_inputs}".ljust(38, " ") + "|\n")
-                f.write(f"| Avg, runtime per input: {time_per_input:.2f} msec".ljust(38, " ") + f"| Number of crashes detected: {len(self.hax)}".ljust(38, " ") + "|\n")
+                f.write(f"| Avg. runtime per input: {time_per_input:.2f} msec".ljust(38, " ") + f"| Number of crashes detected: {len(self.hax)}".ljust(38, " ") + "|\n")
                 f.write(bottom_line + empty_line)
                 f.write("| Crash types detected:".ljust(38, " ") + "|".ljust(38, " ") + "|\n")
                 for key in self.crash_types:
