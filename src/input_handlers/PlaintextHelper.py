@@ -14,12 +14,9 @@ class PlaintextHelper:
         """
         Returns bad strings as a list.
         """
-        bad_string_options = []
         with open('./src/input_handlers/bad-strings.txt', 'r') as bad_strings:
-            for bad_string in bad_strings:
-                if not bad_string.startswith(('#', '\n')):
-                    bad_string_options.append(bad_string.strip('\n'))
-            
+            content = bad_strings.read()
+            bad_string_options = content.split("\n")                   
         return bad_string_options
     
     @staticmethod
