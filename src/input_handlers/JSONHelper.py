@@ -10,6 +10,22 @@ class JSONHelper:
         return {key: f"{value * 1000}" for key, value in json_input.items()}
     
     @staticmethod
+    def int_overflow(json_input):
+        results = {}
+        for key, value in json_input.items():
+            if isinstance(value, int):
+                results[key] = value + 2147483647
+        return results
+    
+    @staticmethod
+    def int_underflow(json_input):
+        results = {}
+        for key, value in json_input.items():
+            if isinstance(value, int):
+                results[key] = value - 2147483647
+        return results
+    
+    @staticmethod
     def get_bad_strings():
         """
         Returns bad strings as a list

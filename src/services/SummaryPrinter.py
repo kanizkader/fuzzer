@@ -32,14 +32,16 @@ class SummaryPrinter:
             return
         output_file = os.path.join(output_folder, 'bad_' + os.path.splitext(os.path.basename(self.filename))[0] + '.txt')
 
+        time_per_input = (self.exec_time / self.num_inputs) * 1000
+
         try:
             with open(output_file, 'w') as f:
                 f.write(f"Results summary: {self.filename}\n")
                 f.write("\n")
                 f.write("___ Timing ".ljust(38, "_") + " ___ Inputs & crashes ".ljust(38, "_") + "\n")
                 f.write(empty_line)
-                f.write(f"| Total runtime: {self.exec_time}ms".ljust(38, " ") + f"| Total inputs tried: {self.num_inputs}".ljust(38, " ") + "|\n")
-                f.write(f"| Avg, runtime per input: {self.exec_time}ms".ljust(38, " ") + f"| Number of crashes detected: {len(self.hax)}".ljust(38, " ") + "|\n")
+                f.write(f"| Total runtime: {self.exec_time:.2f} secs".ljust(38, " ") + f"| Total inputs tried: {self.num_inputs}".ljust(38, " ") + "|\n")
+                f.write(f"| Avg, runtime per input: {time_per_input:.2f} msec".ljust(38, " ") + f"| Number of crashes detected: {len(self.hax)}".ljust(38, " ") + "|\n")
                 f.write(bottom_line + empty_line)
                 f.write("| Crash types detected:".ljust(38, " ") + "|".ljust(38, " ") + "|\n")
                 for key in self.crash_types:
