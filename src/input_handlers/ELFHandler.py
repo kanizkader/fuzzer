@@ -35,7 +35,7 @@ class ELFHandler:
         mutations.extend(ELFHandler._mutate_symbol_table(original_content, elf_file))
         mutations.extend(ELFHandler._random_section_mutations(original_content, elf_file))
         
-        return mutations
+        return mutations[:40]
 
     @staticmethod
     def _mutate_elf_header(content):
