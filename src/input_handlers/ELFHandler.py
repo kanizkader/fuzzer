@@ -62,7 +62,7 @@ class ELFHandler:
         return mutations
 
     @staticmethod
-    def _mutate_section_headers(content, elf_file):
+    def _mutate_section_headers(content, elf_file: ELFFile):
         """
         Mutates section header table entries
         """
@@ -70,7 +70,7 @@ class ELFHandler:
         mutated = bytearray(content)
         
         # Check if section headers exist
-        if not elf_file.has_section_header:
+        if not elf_file._get_section_header:
             return mutations
             
         for section in elf_file.iter_sections():
@@ -127,7 +127,7 @@ class ELFHandler:
         mutated = bytearray(content)
         
         # Check if section headers exist
-        if not elf_file.has_section_header:
+        if not elf_file._get_section_header:
             return mutations
             
         for section in elf_file.iter_sections():
@@ -163,19 +163,19 @@ class ELFHandler:
             section = elf_file.get_section_by_name(section_name)
             if section:
                 mutated = bytearray(content)
-                
+
                 # Flip random bytes in section
                 for _ in range(10):  # Number of mutations per section
                     offset = random.randint(section.header.sh_offset,
                                          section.header.sh_offset + section.header.sh_size - 1)
                     mutated[offset] ^= random.randint(1, 255)
                     mutations.append(bytes(mutated))
-                    
+
         return mutations 
 
 if __name__ == "__main__":
-    with open("./example_inputs/base.bin", "rb") as f:
-        print("reading base.bin")
+    with open("./sample_binaries/example_inputs/", "rb") as f:
+        print("reading elf1")
         content = f.read()
         mutations = ELFHandler.parse_input(content)
         print("number of mutations generated:", len(mutations))
