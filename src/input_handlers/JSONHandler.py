@@ -14,9 +14,9 @@ class JSONHandler:
             JSONHelper.biggest_int,
             JSONHelper.int_overflow,
             JSONHelper.int_underflow,
-            JSONHelper.long_keys,
-            JSONHelper.invalid_types,
-            JSONHelper.malformed_json,
+            # JSONHelper.long_keys,
+            # JSONHelper.invalid_types,
+            # JSONHelper.malformed_json,
         ]
         
         # Append original input

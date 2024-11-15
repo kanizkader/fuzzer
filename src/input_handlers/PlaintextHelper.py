@@ -1,13 +1,28 @@
 import random
 
 class PlaintextHelper:
-
     @staticmethod
     def simple_buffer_overflow(plain_input):
-        """
-        Can remove this function later when we have better functions
-        """
         return f"{plain_input * 1000}"
+    
+    @staticmethod
+    def bigger_buffer_overflow(plain_input):
+        return f"{plain_input * 8000}"
+    
+    @staticmethod
+    def biggest_int(plaintext_input):
+        if isinstance(plaintext_input, int):
+            return 2147483647
+        
+    @staticmethod
+    def int_overflow(plaintext_input):
+        if isinstance(plaintext_input, int):
+            return plaintext_input + 2147483647
+        
+    @staticmethod
+    def int_underflow(plaintext_input):
+        if isinstance(plaintext_input, int):
+            return plaintext_input - 2147483647
 
     @staticmethod
     def get_bad_strings():

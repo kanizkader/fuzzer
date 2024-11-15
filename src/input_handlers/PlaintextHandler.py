@@ -24,6 +24,10 @@ class PlaintextHandler:
         """
         fuzzing_options = [
             PlaintextHelper.simple_buffer_overflow,  
+            PlaintextHelper.bigger_buffer_overflow, 
+            PlaintextHelper.biggest_int,
+            PlaintextHelper.int_overflow,
+            PlaintextHelper.int_underflow,
         ]
         
         # Append original input
