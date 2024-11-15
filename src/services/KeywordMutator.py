@@ -85,7 +85,3 @@ class KeywordMutator:
             print(file)
             
         return strings, vulnerable_keywords, files
-
-
-if __name__ == "__main__":
-    KeywordMutator.analyze_binary("binaries/csv1")

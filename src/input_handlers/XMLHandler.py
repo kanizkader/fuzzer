@@ -6,11 +6,10 @@ class XMLHandler:
 
     @staticmethod
     def bad_strings():
-        bad_string_options = []
         with open('./src/input_handlers/bad-strings.txt', 'r') as bad_strings:
-            for bad_string in bad_strings:
-                if not bad_string.startswith(('#', '\n')):
-                    bad_string_options.append(bad_string.strip('\n'))
+            content = bad_strings.read()
+
+        bad_string_options = content.split("\n")
         return bad_string_options
 
     @staticmethod
@@ -40,13 +39,8 @@ class XMLHandler:
             for c in content:
                 if any(c in string for c in ('>', '<', '\\')):
                     continue
-                subbed = re.sub(s, string, base_input)
+                subbed = re.sub(c, string, base_input)
                 fuzzed.append(subbed)
-            
-            if any(c in s for c in ('>', '<')):
-                continue
-            subbed = f'<{s}></{s}>'
-            fuzzed.append(subbed)
         
         return fuzzed
     
@@ -55,6 +49,7 @@ class XMLHandler:
         """
         Returns array of long strings of the given length
         """
+        fuzzed = []
         # create nested divs
         nested = "<div>"
         for _ in range(length):
@@ -69,7 +64,9 @@ class XMLHandler:
         fuzzed.append("a" * length)
 
         # Just numbers
-        fuzzed.append(int("1" * length))
+        fuzzed.append("1" * length)
+
+        return fuzzed
 
     @staticmethod
     def mutate(base_input):
@@ -78,7 +75,6 @@ class XMLHandler:
         """
         fuzzed = []
         bad_strings = XMLHandler.bad_strings()
-        xml_fuzz = XMLHandler.xml_fuzz()
         length = 512
 
         # find all property strings 
@@ -88,12 +84,6 @@ class XMLHandler:
 
         fuzzed += XMLHandler.sub_bad_strings(base_input, bad_strings, properties, content)
         fuzzed += XMLHandler.buffer_overflow(length)
-        fuzzed += XMLHandler.double_to_single(base_input)
-
-        for l in range(length):
-            for bad in bad_strings:
-                many_links = f"<a href='aaaa'>Link</a>" * l + f"<a href='aaaa'>{bad}</a>"
-                fuzzed.append(many_links)
 
         # Classic XXE
         xml_strings = XMLHandler.xml_strings()

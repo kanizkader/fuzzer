@@ -5,6 +5,7 @@ import mimetypes
 from input_handlers import CSVHandler, JSONHandler, PDFHandler, PlaintextHandler, XMLHandler, ELFHandler
 from elftools.elf.elffile import ELFFile
 import services.MutationHelper as mh
+import xml.etree.ElementTree as ET
 
 class InputResolver:
     """
@@ -37,6 +38,8 @@ class InputResolver:
             format_specific = PDFHandler.PdfHandler.parse_input(content)
         elif data_type == "elf":
             format_specific = ELFHandler.ELFHandler.parse_input(content)
+        elif data_type == "xml":
+            format_specific = XMLHandler.XMLHandler.parse_input(content)
         elif data_type == None and mimetypes.guess_type(file_path)[0] == 'text/plain':
             format_specific = PlaintextHandler.PlaintextHandler.parse_input(content)
         else:
@@ -63,6 +66,12 @@ class InputResolver:
             ELFFile(content)
             return "elf"
         except Exception as e:
+            pass
+
+        try:
+            ET.parse(file_path)
+            return "xml"
+        except ET.ParseError:
             pass
 
         # Check for PDF (not yet ready for the real world)
