@@ -42,11 +42,6 @@ class XMLHandler:
                     continue
                 subbed = re.sub(c, string, base_input)
                 fuzzed.append(subbed)
-            
-            if any(c in bad_strings for c in ('>', '<')):
-                continue
-            subbed = f'<{string}></{string}>'
-            fuzzed.append(subbed)
         
         return fuzzed
     
@@ -90,10 +85,6 @@ class XMLHandler:
 
         fuzzed += XMLHandler.sub_bad_strings(base_input, bad_strings, properties, content)
         fuzzed += XMLHandler.buffer_overflow(length)
-
-        for bad in bad_strings:
-            many_links = f"<a href='aaaa'>Link</a>" * length + f"<a href='aaaa'>{bad}</a>"
-            fuzzed.append(many_links)
 
         # Classic XXE
         xml_strings = XMLHandler.xml_strings()

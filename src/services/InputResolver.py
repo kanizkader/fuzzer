@@ -2,11 +2,12 @@ import pathlib
 import json
 import csv
 import mimetypes
-from input_handlers import CSVHandler, JSONHandler, PDFHandler, PlaintextHandler, XMLHandler, ELFHandler
+from input_handlers import CSVHandler, JSONHandler, PDFHandler, PlaintextHandler, XMLHandler, JPEGHandler
 from elftools.elf.elffile import ELFFile
 import services.MutationHelper as mh
 from PIL import Image
 import xml.etree.ElementTree as ET
+from io import StringIO, BytesIO
 
 class InputResolver:
     """
@@ -20,13 +21,22 @@ class InputResolver:
         # Assume example_input is a file path
         file_path = pathlib.Path(example_input_path)
 
-        with open(file_path, 'r') as file:
-            content = file.read()
+        data_type = InputResolver._detect_data_type(file_path)
 
-        data_type = InputResolver._detect_data_type(content)
+        content = ''
+        if data_type == "jpg":
+            with open(file_path, 'rb') as file:
+                content = file.read()
+                return JPEGHandler.JPEGHandler.parse_input(content)
+        else:
+            with open(file_path, 'r') as file:
+                content = file.read()
         
         # Bit flips & byte flips
-        general_mutations = [flip for flip in mh.flip(content.encode(), 200)]
+        if data_type == "jpg":
+            general_mutations = [flip for flip in mh.flip(content, 200)]
+        else:
+            general_mutations = [flip for flip in mh.flip(content.encode(), 200)]
         # Various empty strings
         general_mutations += [b'\x00', b'\n', b'', b'\r', b'\r\n']
         
@@ -50,7 +60,19 @@ class InputResolver:
         return format_specific + general_mutations
 
     @staticmethod
-    def _detect_data_type(content):
+    def _detect_data_type(file_path):
+
+        try:
+            with Image.open(file_path) as img:
+                if img.format == 'JPEG':
+                    return "jpg"
+        except (IOError, SyntaxError) as e:
+            pass
+
+        content = ''
+        with open(file_path, 'r') as file:
+            content = file.read()
+
         try:
             json.loads(content)
             return "json"
@@ -74,9 +96,7 @@ class InputResolver:
             return "pdf"
 
         try:
-            from io import StringIO
-            file_like_object = StringIO(content)
-            ET.parse(file_like_object)
+            ET.parse(file_path)
             return "xml"
         except ET.ParseError:
             pass

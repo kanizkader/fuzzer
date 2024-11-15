@@ -6,15 +6,13 @@ import io
 class JPEGHandler:
 
     @staticmethod
-    def image_to_bytes(image):
+    def image_to_bytes(img):
         """
         Converts a PIL Image to a byte array
         """
         img_byte_arr = io.BytesIO()
-        image.save(img_byte_arr, format='JPEG')
-        
-        img_byte_arr.seek(0)  # Rewind the buffer to the beginning
-        return img_byte_arr.read()
+        img.save(img_byte_arr, format='JPEG')  # Save to the byte array in JPEG format
+        return img_byte_arr.getvalue()  # Get the raw byte data
 
     @staticmethod
     def bad_strings():
@@ -80,8 +78,6 @@ class JPEGHandler:
         fuzzed = []
 
         bad_strings = JPEGHandler.bad_strings()
-        image_bytes = io.BytesIO(base_input)
-        image = Image.open(image_bytes)
         
         fuzzed += JPEGHandler.append_strings(base_input, bad_strings)
         fuzzed += JPEGHandler.append_image(base_input)
