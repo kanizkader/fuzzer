@@ -19,25 +19,20 @@ If you need to add binaries to the project, you can do so by adding them to the 
 
 # Fuzzer Functionality
 
-TODO
-
 ## Mutation Strategies
-- Bit Flips: Implemented
-- Byte Flips: Implemented
-- Known Ints: Not Implemented
-- Repeated Parts: Not Implemented  
-- Keyword Extraction: Not Implemented
-- Arithmetic: Not Implemented
-- Coverage-based mutations: Not Implemented 
+- Bit Flips
+- Byte Flips
+- Known Ints
+- Repeated Parts
+- Keyword Extraction
+- Arithmetic
+- Coverage-based mutations
 
 ## File Formats
 
-- CSV: Implemented
-- JSON: Implemented 
-- XML: Not Implemented  
-- JPEG: Not Implemented 
-- ELF: Not Implemented  
-- PDF: Not Implemented   
-
-# Harness
-TODO
+- CSV
+- JSON
+- XML 
+- JPEG
+- ELF
+- PDF
